@@ -13,10 +13,16 @@ class DiscordService(private val jda: JDA, private val listeners: List<EventList
 
     fun start() {
         logger.info("Starting the JDA instance and registering slash commands")
+
+        registerEventListeners()
+        updatePresence()
     }
 
     private fun registerEventListeners() {
-        listeners.forEach { jda.addEventListener(it) }
+        listeners.forEach {
+            logger.info("Registering event listener [${it::class.qualifiedName}]")
+            jda.addEventListener(it)
+        }
     }
 
     private fun updatePresence() {

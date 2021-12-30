@@ -13,7 +13,7 @@ final class DiscordBeansProvider(configuration: BotConfiguration) {
     // This class has to be final, as `DiscordBeansProvider#jda` is accessed within the constructor
 
     @get:Bean
-    val jda: JDA = JDABuilder.createDefault(configuration.token).build()
+    val jda: JDA = JDABuilder.createDefault(configuration.token).build().awaitReady()
 
     @get:Bean
     val guild: Guild = jda.getGuildById(configuration.guild)

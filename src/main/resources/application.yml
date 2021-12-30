@@ -1,3 +1,7 @@
 bot:
   guild: ${DISCORD_GUILD:691227762102501436}
   token: ${DISCORD_TOKEN}
+
+logging:
+  level:
+    goodgartic.mrclean: debug

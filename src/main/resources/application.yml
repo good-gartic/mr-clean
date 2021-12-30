@@ -1,2 +1,2 @@
-discord:
+bot:
   token: ${DISCORD_TOKEN}

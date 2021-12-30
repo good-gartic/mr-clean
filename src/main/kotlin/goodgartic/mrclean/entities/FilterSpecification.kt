@@ -15,6 +15,8 @@ data class FilterSpecification(
     val allowedEntities: List<String> = emptyList(),
     val deniedEntities: List<String> = emptyList(),
 ) {
+    fun isEmpty(): Boolean = allowedEntities.isEmpty() && deniedEntities.isEmpty()
+
     fun matches(entry: String): Boolean = when (entry) {
         // If the entry was explicitly denied
         in deniedEntities -> false

@@ -1,4 +1,4 @@
-package goodgartic.mrclean.discord
+package goodgartic.mrclean.configuration
 
 import goodgartic.mrclean.configuration.BotConfiguration
 import net.dv8tion.jda.api.JDA

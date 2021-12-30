@@ -1,6 +1,5 @@
-package goodgartic.mrclean.discord
+package goodgartic.mrclean.service
 
-import goodgartic.mrclean.discord.commands.SlashCommand
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.hooks.EventListener

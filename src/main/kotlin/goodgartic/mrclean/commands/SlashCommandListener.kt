@@ -1,7 +1,6 @@
-package goodgartic.mrclean.discord.commands
+package goodgartic.mrclean.commands
 
 import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.events.application.ApplicationCommandCreateEvent
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.springframework.stereotype.Component

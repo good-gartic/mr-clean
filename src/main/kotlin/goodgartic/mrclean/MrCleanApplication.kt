@@ -1,6 +1,6 @@
 package goodgartic.mrclean
 
-import goodgartic.mrclean.discord.DiscordService
+import goodgartic.mrclean.service.DiscordService
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan

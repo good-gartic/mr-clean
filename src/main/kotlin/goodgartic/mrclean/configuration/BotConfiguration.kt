@@ -5,4 +5,7 @@ import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConstructorBinding
 @ConfigurationProperties(prefix = "bot")
-data class BotConfiguration(val token: String)
+data class BotConfiguration(
+    val token: String,
+    val guild: Long
+)

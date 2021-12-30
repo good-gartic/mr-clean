@@ -4,6 +4,11 @@
       "name": "discord.token",
       "type": "java.lang.String",
       "description": "Token used for Discord gateway authentication."
+    },
+    {
+      "name": "bot.guild",
+      "type": "java.lang.Long",
+      "description": "Guild ID that the bot should handle events from."
     }
   ]
 }

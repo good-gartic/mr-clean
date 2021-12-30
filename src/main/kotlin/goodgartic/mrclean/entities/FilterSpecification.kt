@@ -15,11 +15,11 @@ data class FilterSpecification(
     val allowedEntities: List<String> = emptyList(),
     val deniedEntities: List<String> = emptyList(),
 ) {
-    fun allows(entry: String): Boolean = when {
+    fun matches(entry: String): Boolean = when (entry) {
         // If the entry was explicitly denied
-        entry in deniedEntities -> false
+        in deniedEntities -> false
         // If the entry was explicitly allowed
-        entry in allowedEntities -> true
+        in allowedEntities -> true
         // If allowed entities are empty, allow all entities, otherwise limit the specification to whitelist-only
         else -> allowedEntities.isEmpty()
     }

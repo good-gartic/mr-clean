@@ -16,5 +16,4 @@ class FilterService(private val repository: FiltersRepository) {
             it.users().matches(channel) &&
             roles.any { role -> it.roles().matches(role) }
         }
-
 }

@@ -9,6 +9,9 @@ class FilterService(private val repository: FiltersRepository) {
 
     fun allFilters(): List<Filter> = repository.findAll().toList()
 
+    fun createFilter(pattern: String, delay: Int): Filter =
+        repository.save(Filter(pattern = pattern, delay = delay))
+
     fun matchFilter(content: String, channel: String, user: String, roles: List<String>): Filter? =
         repository.findAll().firstOrNull {
             it.pattern.toRegex().matches(content) &&

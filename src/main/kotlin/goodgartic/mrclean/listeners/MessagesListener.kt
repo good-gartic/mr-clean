@@ -1,5 +1,6 @@
 package goodgartic.mrclean.listeners
 
+import goodgartic.mrclean.service.FilterService
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Message
@@ -10,7 +11,11 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
-class MessagesListener(private val jda: JDA, private val guild: Guild) : ListenerAdapter() {
+class MessagesListener(
+    private val jda: JDA,
+    private val guild: Guild,
+    private val service: FilterService
+) : ListenerAdapter() {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -33,6 +38,11 @@ class MessagesListener(private val jda: JDA, private val guild: Guild) : Listene
             return
         }
 
-        logger.debug("Processing message [${message.id}]...")
+        val member = message.member ?: return logger.warn("Cannot obtain member for message [${message.id}]")
+        val filter = service.matchFilter(message.contentDisplay, message.channel.id, member.id, member.roles.map { it.id })
+
+        if (filter != null) {
+            logger.debug("Processing message [id = ${message.id}] because it matched filter [id = ${filter.id}]")
+        }
     }
 }

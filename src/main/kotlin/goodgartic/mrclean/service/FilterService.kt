@@ -16,7 +16,7 @@ class FilterService(private val repository: FiltersRepository) {
         repository.findAll().firstOrNull {
             it.pattern.toRegex().matches(content) &&
             it.channels().matches(channel) &&
-            it.users().matches(channel) &&
+            it.users().matches(user) &&
             roles.any { role -> it.roles().matches(role) }
         }
 }

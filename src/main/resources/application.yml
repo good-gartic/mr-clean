@@ -6,6 +6,7 @@ logging:
   level:
     goodgartic.mrclean: debug
 
+# TODO: Move the database file to a mounted Docker volume later
 spring:
   datasource:
     url: jdbc:h2:file:~/mrclean

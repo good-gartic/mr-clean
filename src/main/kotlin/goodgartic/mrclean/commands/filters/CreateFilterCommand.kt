@@ -19,11 +19,14 @@ class CreateFilterCommand(private val service: FilterService) : SlashCommand {
     override val definition: CommandData = CommandData("create-filter", "Creates a new message filter")
         .addOption(OptionType.STRING, "pattern", "Regex pattern used for matching against the message", true)
         .addOption(OptionType.INTEGER, "delay", "Delay in seconds, before the message gets deleted, defaults to 0, max is 2 minutes", false)
+        .addOption(OptionType.CHANNEL, "repost-channel", "Channel, to which the message should be reposted", false)
 
     override fun execute(event: SlashCommandEvent) {
         val pattern = event.getOption("pattern")?.asString ?: throw IllegalArgumentException("Missing the pattern parameter")
         val delay = event.getOption("delay")?.asLong?.coerceIn(0L..120L) ?: 0L
-        val filter = service.createFilter(pattern, delay)
+        val channel = event.getOption("repost-channel")?.asMessageChannel?.id ?: ""
+
+        val filter = service.createFilter(pattern, delay, channel)
 
         event.replyEmbeds(filterCreatedEmbed(filter, event.user)).queue()
     }

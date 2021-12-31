@@ -17,10 +17,11 @@ fun FilterSpecification.description(name: String, transform: (String) -> String)
 
 fun Filter.description(): String =
     """
-    **ID**: `${this.id}`
-    **Pattern**: `${this.pattern.replace("`", "\\`")}`
-    **Delay**:    ${if (this.delay <= 0) "_Applied immediately_" else "Applied after **${this.delay} seconds**"}
-    **Channels**: ${this.channels().description("channels") { channel -> "<#$channel>" }}
-    **Users**:    ${this.users().description("users") { user -> "<@$user>" }}
-    **Roles**:    ${this.roles().description("roles") { role -> "<@&$role>" }}
+    **ID**:       `${this.id}`
+    **Pattern**:  `${this.pattern.replace("`", "\\`")}`
+    **Delay**:     ${if (this.delay <= 0) "_Applied immediately_" else "Applied after **${this.delay} seconds**"}
+    **Channels**:  ${this.channels().description("channels") { channel -> "<#$channel>" }}
+    **Users**:     ${this.users().description("users") { user -> "<@$user>" }}
+    **Roles**:     ${this.roles().description("roles") { role -> "<@&$role>" }}
+    **Reposting**: ${if (this.repostChannel.isBlank()) "Disabled" else "to <#${this.repostChannel}>" }
     """.trimIndent()

@@ -4,6 +4,7 @@ import goodgartic.mrclean.entities.Filter
 import goodgartic.mrclean.repositories.FiltersRepository
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.TextChannel
+import net.dv8tion.jda.api.entities.WebhookClient
 import org.springframework.stereotype.Service
 
 @Service
@@ -11,8 +12,8 @@ class FilterService(private val repository: FiltersRepository) {
 
     fun allFilters(): List<Filter> = repository.findAll().toList()
 
-    fun createFilter(pattern: String, delay: Long): Filter =
-        repository.save(Filter(pattern = pattern, delay = delay))
+    fun createFilter(pattern: String, delay: Long, channel: String = ""): Filter =
+        repository.save(Filter(pattern = pattern, delay = delay, repostChannel = channel))
 
     fun matchFilter(content: String, channel: String, user: String, roles: List<String>): Filter? =
         repository.findAll().firstOrNull {
@@ -37,6 +38,7 @@ class FilterService(private val repository: FiltersRepository) {
     }
 
     private fun repostMessage(message: Message, channel: TextChannel) {
-        TODO("Implement reposting messages")
+        val webhook = channel.retrieveWebhooks().complete().firstOrNull()
+            ?: channel.createWebhook("Mr. Clean reposting webhook").complete()
     }
 }

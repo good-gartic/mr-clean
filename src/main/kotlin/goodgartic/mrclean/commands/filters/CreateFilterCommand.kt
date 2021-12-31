@@ -22,7 +22,7 @@ class CreateFilterCommand(private val service: FilterService) : SlashCommand {
 
     override fun execute(event: SlashCommandEvent) {
         val pattern = event.getOption("pattern")?.asString ?: throw IllegalArgumentException("Missing the pattern parameter")
-        val delay = event.getOption("delay")?.asLong?.coerceIn(0L..120L)?.toInt() ?: 0
+        val delay = event.getOption("delay")?.asLong?.coerceIn(0L..120L) ?: 0L
         val filter = service.createFilter(pattern, delay)
 
         event.replyEmbeds(filterCreatedEmbed(filter, event.user)).queue()

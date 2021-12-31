@@ -8,13 +8,17 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.slf4j.LoggerFactory
+import org.springframework.scheduling.TaskScheduler
 import org.springframework.stereotype.Component
+import java.time.Duration
+import java.time.Instant
 
 @Component
 class MessagesListener(
     private val jda: JDA,
     private val guild: Guild,
-    private val service: FilterService
+    private val service: FilterService,
+    private val scheduler: TaskScheduler
 ) : ListenerAdapter() {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -42,7 +46,12 @@ class MessagesListener(
         val filter = service.matchFilter(message.contentDisplay, message.channel.id, member.id, member.roles.map { it.id })
 
         if (filter != null) {
-            logger.debug("Processing message [id = ${message.id}] because it matched filter [id = ${filter.id}]")
+            val application = {
+                logger.debug("Applying filter [id = ${filter.id}] to message [id = ${message.id}]")
+                service.applyFilter(message, filter)
+            }
+
+            scheduler.schedule(application, Instant.now() + Duration.ofSeconds(filter.delay))
         }
     }
 }

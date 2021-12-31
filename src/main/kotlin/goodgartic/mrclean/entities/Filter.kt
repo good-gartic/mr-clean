@@ -18,7 +18,7 @@ data class Filter(
     /**
      * Delay in seconds, before the filtered message is deleted
      */
-    val delay: Int = 0,
+    val delay: Long = 0,
 
     /**
      * Limit this filter to a specific channel(s), if empty, message in all channels are filtered
@@ -38,12 +38,11 @@ data class Filter(
     /**
      * IDs of the channel, that the message should be reposted to, if empty, the message is just deleted
      */
-    private val repostChannels: String = "",
+    val repostChannel: String = "",
 ) {
     fun channels(): FilterSpecification = channels.toFilterSpecification()
     fun users(): FilterSpecification = users.toFilterSpecification()
     fun roles(): FilterSpecification = roles.toFilterSpecification()
-    fun repostChannels(): List<String> = repostChannels.split(",")
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

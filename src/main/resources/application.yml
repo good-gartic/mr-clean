@@ -5,3 +5,11 @@ bot:
 logging:
   level:
     goodgartic.mrclean: debug
+
+spring:
+  datasource:
+    url: jdbc:h2:file:~/mrclean
+
+  jpa:
+    hibernate:
+      ddl-auto: update

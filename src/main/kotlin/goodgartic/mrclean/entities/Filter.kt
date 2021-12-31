@@ -1,16 +1,14 @@
 package goodgartic.mrclean.entities
 
 import org.hibernate.Hibernate
-import java.util.*
-import javax.persistence.Entity
-import javax.persistence.Id
-import javax.persistence.Table
+import javax.persistence.*
 
 @Entity
 @Table(name = "filters")
 data class Filter(
     @Id
-    val id: UUID = UUID.randomUUID(),
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Int = 0,
 
     /**
      * A regular expression pattern, that is applied

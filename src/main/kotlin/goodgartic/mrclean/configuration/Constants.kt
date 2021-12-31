@@ -7,5 +7,6 @@ object Constants {
     object Colors {
         const val primary = 0x5865F2
         const val green = 0x57F287
+        const val red = 0xED4245
     }
 }

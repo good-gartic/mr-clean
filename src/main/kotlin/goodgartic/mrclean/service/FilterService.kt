@@ -1,11 +1,13 @@
 package goodgartic.mrclean.service
 
+import goodgartic.mrclean.configuration.Constants
 import goodgartic.mrclean.entities.Filter
 import goodgartic.mrclean.repositories.FiltersRepository
+import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.TextChannel
-import net.dv8tion.jda.api.entities.WebhookClient
 import org.springframework.stereotype.Service
+import java.io.File
 
 @Service
 class FilterService(private val repository: FiltersRepository) {
@@ -18,9 +20,9 @@ class FilterService(private val repository: FiltersRepository) {
     fun matchFilter(content: String, channel: String, user: String, roles: List<String>): Filter? =
         repository.findAll().firstOrNull {
             it.pattern.toRegex().matches(content) &&
-            it.channels().matches(channel) &&
-            it.users().matches(user) &&
-            roles.any { role -> it.roles().matches(role) }
+                    it.channels().matches(channel) &&
+                    it.users().matches(user) &&
+                    roles.any { role -> it.roles().matches(role) }
         }
 
     fun applyFilter(message: Message, filter: Filter) {
@@ -38,7 +40,22 @@ class FilterService(private val repository: FiltersRepository) {
     }
 
     private fun repostMessage(message: Message, channel: TextChannel) {
-        val webhook = channel.retrieveWebhooks().complete().firstOrNull()
-            ?: channel.createWebhook("Mr. Clean reposting webhook").complete()
+        val embed = EmbedBuilder()
+            .setAuthor(message.author.name, null, message.author.effectiveAvatarUrl)
+            .setDescription(message.contentRaw)
+            .setColor(Constants.Colors.primary)
+            .setFooter("Originally posted in #${message.channel.name}")
+            .setTimestamp(message.timeEdited ?: message.timeCreated)
+
+        val action = channel.sendMessageEmbeds(message.embeds + embed.build())
+        val files = message.attachments.map {
+            it.downloadToFile(File.createTempFile("temp_", it.fileName))
+                .join()
+                .also { file -> action.addFile(file) }
+        }
+
+        action.complete()
+
+        files.forEach { it.delete() }
     }
 }

@@ -23,6 +23,8 @@ class EditFilterCommand(private val service: FilterService) : SlashCommand {
         .addOption(OptionType.CHANNEL, "repost-channel", "Channel, to which the messages should be reposted, leave empty to disable reposting", false)
 
     override fun execute(event: SlashCommandEvent) {
+        val interaction = event.deferReply().complete()
+
         val filter = event.getOption("id")?.asLong?.let { service.findFilter(it) }
             ?: throw IllegalArgumentException("Cannot find the specified filter")
 
@@ -32,7 +34,7 @@ class EditFilterCommand(private val service: FilterService) : SlashCommand {
 
         val updated = service.updateFilter(filter.copy(pattern = pattern, delay = delay, repostChannel = channel))
 
-        event.replyEmbeds(filterUpdatedEmbed(updated)).queue()
+        interaction.editOriginalEmbeds(filterUpdatedEmbed(updated)).queue()
     }
 
     private fun filterUpdatedEmbed(filter: Filter): MessageEmbed =

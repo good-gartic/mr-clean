@@ -20,11 +20,14 @@ class DeleteFilterCommand(private val service: FilterService) : SlashCommand {
         .addOption(OptionType.INTEGER, "id", "ID of the filter that should be deleted", true)
 
     override fun execute(event: SlashCommandEvent) {
+        val interaction = event.deferReply().complete()
+
         val filter = event.getOption("id")?.asLong?.let { service.findFilter(it) }
             ?: throw IllegalArgumentException("Cannot find the specified filter")
 
         service.deleteFilter(filter)
-        event.replyEmbeds(filterDeletedEmbed(filter)).queue()
+
+        interaction.editOriginalEmbeds(filterDeletedEmbed(filter)).queue()
     }
 
     private fun filterDeletedEmbed(filter: Filter): MessageEmbed =

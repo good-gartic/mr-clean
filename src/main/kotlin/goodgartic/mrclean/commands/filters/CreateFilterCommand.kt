@@ -22,13 +22,15 @@ class CreateFilterCommand(private val service: FilterService) : SlashCommand {
         .addOption(OptionType.CHANNEL, "repost-channel", "Channel, to which the message should be reposted", false)
 
     override fun execute(event: SlashCommandEvent) {
+        val interaction = event.deferReply().complete()
+
         val pattern = event.getOption("pattern")?.asString ?: throw IllegalArgumentException("Missing the pattern parameter")
         val delay = event.getOption("delay")?.asLong?.coerceIn(0L..120L) ?: 0L
         val channel = event.getOption("repost-channel")?.asMessageChannel?.id ?: ""
 
         val filter = service.createFilter(pattern, delay, channel)
 
-        event.replyEmbeds(filterCreatedEmbed(filter, event.user)).queue()
+        interaction.editOriginalEmbeds(filterCreatedEmbed(filter, event.user)).queue()
     }
 
     private fun filterCreatedEmbed(filter: Filter, user: User): MessageEmbed {

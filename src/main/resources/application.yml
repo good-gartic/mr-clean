@@ -9,7 +9,7 @@ logging:
 # TODO: Move the database file to a mounted Docker volume later
 spring:
   datasource:
-    url: jdbc:h2:file:~/mrclean
+    url: ${DATABASE_URL:jdbc:h2:file:~/mrclean}
 
   jpa:
     hibernate:

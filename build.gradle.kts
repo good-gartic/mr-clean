@@ -7,7 +7,6 @@ plugins {
     kotlin("jvm") version "1.6.10"
     kotlin("plugin.spring") version "1.6.10"
     kotlin("plugin.jpa") version "1.6.10"
-    id("org.springframework.experimental.aot") version "0.11.1"
 }
 
 group = "goodgartic"

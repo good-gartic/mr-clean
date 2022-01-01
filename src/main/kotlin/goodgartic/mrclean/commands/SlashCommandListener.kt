@@ -2,6 +2,7 @@ package goodgartic.mrclean.commands
 
 import goodgartic.mrclean.configuration.Constants
 import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
@@ -27,13 +28,17 @@ class SlashCommandListener(private val guild: Guild, private val commands: List<
         val handler = commands.firstOrNull { command -> command.definition.name == event.name }
             ?: throw IllegalStateException("Cannot find handler for slash command /${event.name}")
 
-        // TODO: Add exception handling, permissions stuff etc...
         try {
+            // Only allow execution for people with `MANAGER_SERVER` permissions (moderators)
+            if (event.member?.hasPermission(Permission.MANAGE_SERVER) != true) {
+                return event.reply("\uD83D\uDE25 Sorry, but you don't have a permission to use this command.").queue()
+            }
+
             handler.execute(event)
         }
         catch (exception: Throwable) {
             val embed = EmbedBuilder()
-                .setTitle("Oh no, something went wrong")
+                .setTitle("\uD83D\uDE28 Oh no, something went wrong")
                 .setColor(Constants.Colors.red)
                 .setDescription("A `${exception::class.simpleName}` was thrown during the command execution!")
                 .setFooter("If this doesn't make any sense to you, simply don't worry about it. It's not you, it's us")

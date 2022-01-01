@@ -23,6 +23,9 @@ class FilterService(private val repository: FiltersRepository) {
     fun updateFilter(filter: Filter): Filter =
         repository.save(filter)
 
+    fun deleteFilter(filter: Filter) =
+        repository.delete(filter)
+
     fun matchFilter(content: String, channel: String, user: String, roles: List<String>): Filter? =
         repository.findAll().firstOrNull {
             it.pattern.toRegex().matches(content) &&

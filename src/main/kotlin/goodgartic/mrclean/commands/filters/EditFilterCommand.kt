@@ -40,6 +40,7 @@ class EditFilterCommand(private val service: FilterService) : SlashCommand {
             .setTitle("Filter updated")
             .setColor(Constants.Colors.green)
             .setDescription(filter.description())
+            .setThumbnail(Constants.avatar)
             .setTimestamp(Instant.now())
             .build()
 }

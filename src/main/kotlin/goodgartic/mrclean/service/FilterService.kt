@@ -6,6 +6,7 @@ import goodgartic.mrclean.repositories.FiltersRepository
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.TextChannel
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.io.File
 
@@ -14,8 +15,13 @@ class FilterService(private val repository: FiltersRepository) {
 
     fun allFilters(): List<Filter> = repository.findAll().toList()
 
+    fun findFilter(id: Long): Filter? = repository.findByIdOrNull(id)
+
     fun createFilter(pattern: String, delay: Long, channel: String = ""): Filter =
         repository.save(Filter(pattern = pattern, delay = delay, repostChannel = channel))
+
+    fun updateFilter(filter: Filter): Filter =
+        repository.save(filter)
 
     fun matchFilter(content: String, channel: String, user: String, roles: List<String>): Filter? =
         repository.findAll().firstOrNull {

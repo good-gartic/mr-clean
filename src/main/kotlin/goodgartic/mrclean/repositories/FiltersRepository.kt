@@ -5,4 +5,4 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface FiltersRepository : CrudRepository<Filter, Int>
+interface FiltersRepository : CrudRepository<Filter, Long>

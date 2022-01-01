@@ -8,7 +8,7 @@ import javax.persistence.*
 data class Filter(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Int = 0,
+    val id: Long = 0,
 
     /**
      * A regular expression pattern, that is applied

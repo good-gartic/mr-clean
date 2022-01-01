@@ -44,6 +44,16 @@ data class Filter(
     fun users(): FilterSpecification = users.toFilterSpecification()
     fun roles(): FilterSpecification = roles.toFilterSpecification()
 
+    fun addIncludedChannel(channel: String): Filter = copy(channels = channels().allow(channel).toString())
+    fun addExcludedChannel(channel: String): Filter = copy(channels = channels().deny(channel).toString())
+
+    fun addIncludedUser(user: String): Filter = copy(users = users().allow(user).toString())
+    fun addExcludedUser(user: String): Filter = copy(users = users().deny(user).toString())
+
+    fun addIncludedRole(role: String): Filter = copy(roles = roles().allow(role).toString())
+    fun addExcludedRole(role: String): Filter = copy(roles = roles().deny(role).toString())
+
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false

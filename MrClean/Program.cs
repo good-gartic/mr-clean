@@ -1,4 +1,3 @@
-using MrClean;
 using MrClean.Services;
 
 var host = Host.CreateDefaultBuilder(args)

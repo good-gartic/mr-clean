@@ -1,10 +1,10 @@
-namespace MrClean;
+namespace MrClean.Services;
 
-public class DiscordBot : BackgroundService
+public class DiscordBotService : BackgroundService
 {
-    private readonly ILogger<DiscordBot> _logger;
+    private readonly ILogger<DiscordBotService> _logger;
 
-    public DiscordBot(ILogger<DiscordBot> logger)
+    public DiscordBotService(ILogger<DiscordBotService> logger)
     {
         _logger = logger;
     }

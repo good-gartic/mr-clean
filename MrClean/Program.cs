@@ -1,7 +1,10 @@
 using MrClean;
 
-IHost host = Host.CreateDefaultBuilder(args)
-    .ConfigureServices(services => { services.AddHostedService<Worker>(); })
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices(services =>
+    {
+        services.AddHostedService<DiscordBot>();
+    })
     .Build();
 
 await host.RunAsync();

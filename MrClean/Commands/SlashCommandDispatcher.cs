@@ -1,9 +1,8 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.Options;
-using MrClean.Commands;
 using MrClean.Configuration;
 
-namespace MrClean.Services;
+namespace MrClean.Commands;
 
 public class SlashCommandDispatcher
 {

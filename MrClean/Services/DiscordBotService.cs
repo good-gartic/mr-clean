@@ -2,6 +2,7 @@ using Discord;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using MrClean.Commands;
 using MrClean.Configuration;
 using MrClean.Data;
 

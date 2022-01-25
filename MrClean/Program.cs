@@ -1,3 +1,4 @@
+using MrClean.Configuration;
 using MrClean.Services;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -5,9 +6,10 @@ var host = Host.CreateDefaultBuilder(args)
     {
         builder.AddEnvironmentVariables();
     })
-    .ConfigureServices(services =>
+    .ConfigureServices((context, services) =>
     {
         services.AddHostedService<DiscordBotService>();
+        services.Configure<DiscordOptions>(context.Configuration.GetRequiredSection(DiscordOptions.Section));
     })
     .Build();
 

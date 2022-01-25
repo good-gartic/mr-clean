@@ -8,12 +8,19 @@ public class SlashCommandDispatcher
 {
     private readonly DiscordOptions _options;
 
+    private readonly ILogger<SlashCommandDispatcher> _logger;
+
     private readonly IEnumerable<ISlashCommandProvider> _commands;
 
-    public SlashCommandDispatcher(IOptions<DiscordOptions> options, IEnumerable<ISlashCommandProvider> commands)
+    public SlashCommandDispatcher(
+        IOptions<DiscordOptions> options,
+        ILogger<SlashCommandDispatcher> logger,
+        IEnumerable<ISlashCommandProvider> commands
+    )
     {
-        _commands = commands;
         _options = options.Value;
+        _logger = logger;
+        _commands = commands;
     }
 
     public async Task RegisterSlashCommandsAsync(DiscordSocketClient client)
@@ -26,5 +33,17 @@ public class SlashCommandDispatcher
 
     private async Task DispatchCommandAsync(SocketSlashCommand command)
     {
+        var handler = _commands.FirstOrDefault(c =>
+            c.Properties.Name.IsSpecified &&
+            c.Properties.Name.Value == command.CommandName
+        );
+
+        if (handler == null)
+        {
+            _logger.LogWarning("Missing slash command handler for /{command}", command.CommandName);
+            return;
+        }
+
+        await handler.HandleCommandInvocationAsync(command);
     }
 }

@@ -9,4 +9,9 @@ public class DiscordOptions
     ///     Token used for the gateway authentication
     /// </summary>
     public string Token { get; set; }
+    
+    /// <summary>
+    ///     Id of the guild that should be managed by this bot
+    /// </summary>
+    public ulong GuildId { get; set; }
 }

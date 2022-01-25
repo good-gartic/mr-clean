@@ -4,11 +4,6 @@ var host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration((context, builder) =>
     {
         builder.AddEnvironmentVariables();
-
-        if (context.HostingEnvironment.IsDevelopment())
-        {
-            builder.AddUserSecrets<Program>();
-        }
     })
     .ConfigureServices(services =>
     {

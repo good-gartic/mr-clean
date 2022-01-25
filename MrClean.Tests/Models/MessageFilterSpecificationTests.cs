@@ -86,6 +86,10 @@ public class MessageFilterSpecificationTests
         
         Assert.IsNotNull(output);
         Assert.AreEqual("1;2;~0;~3", output);
+
+        var empty = new MessageFilterSpecification("");
+        
+        Assert.That(empty.SpecificationString, Is.Null);
     }
 
     [Test]

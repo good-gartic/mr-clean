@@ -16,9 +16,15 @@ public class MessageFilterSpecification
     /// </summary>
     private const string Negation = "~";
 
-    private readonly IList<ulong> _allowedEntities;
+    /// <summary>
+    ///     Please do not use this property directly in your application code, use <see cref="AllowsEntity"/> instead
+    /// </summary>
+    public List<ulong> AllowedEntities { get; }
 
-    private readonly IList<ulong> _deniedEntities;
+    /// <summary>
+    ///     Please do not use this property directly in your application code, use <see cref="AllowsEntity"/> instead
+    /// </summary>
+    public List<ulong> DeniedEntities { get; }
 
     /// <summary>
     ///     Produced specification string that can be then stored in the database field
@@ -28,15 +34,15 @@ public class MessageFilterSpecification
     {
         get
         {
-            if (_allowedEntities.Count == 0 && _deniedEntities.Count == 0)
+            if (AllowedEntities.Count == 0 && DeniedEntities.Count == 0)
             {
                 return null;
             }
 
             var entities = new List<string>();
             
-            entities.AddRange(_allowedEntities.Select(e => e.ToString()));
-            entities.AddRange(_deniedEntities.Select(e => Negation + e));
+            entities.AddRange(AllowedEntities.Select(e => e.ToString()));
+            entities.AddRange(DeniedEntities.Select(e => Negation + e));
 
             return string.Join(Separator, entities);
         }
@@ -44,8 +50,8 @@ public class MessageFilterSpecification
 
     public MessageFilterSpecification(string? sourceString)
     {
-        _allowedEntities = new List<ulong>();
-        _deniedEntities = new List<ulong>();
+        AllowedEntities = new List<ulong>();
+        DeniedEntities = new List<ulong>();
 
         // Empty or null source string means that this filter specification is applied to everything
         if (string.IsNullOrEmpty(sourceString))
@@ -60,35 +66,35 @@ public class MessageFilterSpecification
             .Select(ulong.Parse)
             .ToList();
 
-        _allowedEntities = allowed;
-        _deniedEntities = denied;
+        AllowedEntities = allowed;
+        DeniedEntities = denied;
     }
 
     public bool AllowsEntity(ulong entity)
     {
         // Explicitly denied entities always return false
-        if (_deniedEntities.Contains(entity))
+        if (DeniedEntities.Contains(entity))
         {
             return false;
         }
 
         // Otherwise, if there are no explicitly allowed entities, return true
         // If, on the other hand, there are explicitly allowed entities, only allow those
-        return _allowedEntities.Count == 0 || _allowedEntities.Contains(entity);
+        return AllowedEntities.Count == 0 || AllowedEntities.Contains(entity);
     }
 
     public MessageFilterSpecification AddAllowedEntity(ulong entity)
     {
-        _allowedEntities.Add(entity);
-        _deniedEntities.Remove(entity);
+        AllowedEntities.Add(entity);
+        DeniedEntities.Remove(entity);
 
         return this;
     }
 
     public MessageFilterSpecification AddDeniedEntity(ulong entity)
     {
-        _deniedEntities.Add(entity);
-        _allowedEntities.Remove(entity);
+        DeniedEntities.Add(entity);
+        AllowedEntities.Remove(entity);
 
         return this;
     }

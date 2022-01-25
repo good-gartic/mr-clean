@@ -13,6 +13,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.Configure<DiscordOptions>(context.Configuration.GetRequiredSection(DiscordOptions.Section));
         
         services.AddHostedService<DiscordBotService>();
+        services.AddTransient<SlashCommandDispatcher>();
         services.AddDbContextFactory<MrCleanDbContext>(options =>
         {
             options.UseNpgsql(context.Configuration.GetConnectionString("Default"));

@@ -10,8 +10,9 @@ public class MessageFilterSpecificationTests
     {
         var specification = new MessageFilterSpecification(null);
         
-        Assert.IsEmpty(specification.AllowedEntities);
-        Assert.IsEmpty(specification.DeniedEntities);
+        Assert.That(specification.AllowedEntities, Is.Empty);
+        Assert.That(specification.DeniedEntities, Is.Empty);
+        Assert.That(specification.SpecificationString, Is.Null);
     }
 
     [Test]
@@ -19,8 +20,9 @@ public class MessageFilterSpecificationTests
     {
         var specification = new MessageFilterSpecification("");
         
-        Assert.IsEmpty(specification.AllowedEntities);
-        Assert.IsEmpty(specification.DeniedEntities);
+        Assert.That(specification.AllowedEntities, Is.Empty);
+        Assert.That(specification.DeniedEntities, Is.Empty);
+        Assert.That(specification.SpecificationString, Is.Null);
     }
 
     [Test]
@@ -29,14 +31,13 @@ public class MessageFilterSpecificationTests
         const string sourceString = "0;~1;2;3;~4";
         var specification = new MessageFilterSpecification(sourceString);
 
-        Assert.AreEqual(3, specification.AllowedEntities.Count);
-        Assert.Contains(0, specification.AllowedEntities);
-        Assert.Contains(2, specification.AllowedEntities);
-        Assert.Contains(3, specification.AllowedEntities);
+        Assert.That(specification.AllowedEntities.Count, Is.EqualTo(3));
+        Assert.That(specification.AllowedEntities, Does.Contain(2));
+        Assert.That(specification.AllowedEntities, Does.Contain(3));
 
-        Assert.AreEqual(2, specification.DeniedEntities.Count);
-        Assert.Contains(1, specification.DeniedEntities);
-        Assert.Contains(4, specification.DeniedEntities);
+        Assert.That(specification.DeniedEntities.Count, Is.EqualTo(2));
+        Assert.That(specification.DeniedEntities, Does.Contain(1));
+        Assert.That(specification.DeniedEntities, Does.Contain(4));
     }
 
     [Test]
@@ -44,9 +45,9 @@ public class MessageFilterSpecificationTests
     {
         var specification = new MessageFilterSpecification(null);
         
-        Assert.IsTrue(specification.AllowsEntity(1));
-        Assert.IsTrue(specification.AllowsEntity(2));
-        Assert.IsTrue(specification.AllowsEntity(3));
+        Assert.That(specification.AllowsEntity(1), Is.True);
+        Assert.That(specification.AllowsEntity(2), Is.True);
+        Assert.That(specification.AllowsEntity(3), Is.True);
     }
 
     [Test]
@@ -54,9 +55,9 @@ public class MessageFilterSpecificationTests
     {
         var specification = new MessageFilterSpecification("1;2");
         
-        Assert.IsTrue(specification.AllowsEntity(1));
-        Assert.IsTrue(specification.AllowsEntity(2));
-        Assert.IsFalse(specification.AllowsEntity(3));
+        Assert.That(specification.AllowsEntity(1), Is.True);
+        Assert.That(specification.AllowsEntity(2), Is.True);
+        Assert.That(specification.AllowsEntity(3), Is.False);
     }
 
     [Test]
@@ -64,8 +65,8 @@ public class MessageFilterSpecificationTests
     {
         var specification = new MessageFilterSpecification("1;~2");
         
-        Assert.IsTrue(specification.AllowsEntity(1));
-        Assert.IsFalse(specification.AllowsEntity(2));
+        Assert.That(specification.AllowsEntity(1), Is.True);
+        Assert.That(specification.AllowsEntity(2), Is.False);
     }
 
     [Test]
@@ -73,9 +74,9 @@ public class MessageFilterSpecificationTests
     {
         var specification = new MessageFilterSpecification("~2");
         
-        Assert.IsTrue(specification.AllowsEntity(1));
-        Assert.IsFalse(specification.AllowsEntity(2));
-        Assert.IsTrue(specification.AllowsEntity(3));
+        Assert.That(specification.AllowsEntity(1), Is.True);
+        Assert.That(specification.AllowsEntity(2), Is.False);
+        Assert.That(specification.AllowsEntity(3), Is.True);
     }
 
     [Test]

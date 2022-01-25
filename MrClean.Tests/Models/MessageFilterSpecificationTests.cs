@@ -77,4 +77,72 @@ public class MessageFilterSpecificationTests
         Assert.IsFalse(specification.AllowsEntity(2));
         Assert.IsTrue(specification.AllowsEntity(3));
     }
+
+    [Test]
+    public void TestSpecificationString()
+    {
+        var source = new MessageFilterSpecification("~0;1;2;~3");
+        var output = source.SpecificationString;
+        
+        Assert.IsNotNull(output);
+        Assert.AreEqual("1;2;~0;~3", output);
+    }
+
+    [Test]
+    public void TestAddingAllowedEntities()
+    {
+        var source = new MessageFilterSpecification("~1");
+        
+        Assert.That(source.DeniedEntities, Is.Not.Empty);
+        Assert.That(source.DeniedEntities, Does.Contain(1));
+        
+        Assert.That(source.AllowedEntities, Is.Empty);
+        
+        source.AddAllowedEntity(2);
+        
+        Assert.That(source.DeniedEntities, Is.Not.Empty);
+        Assert.That(source.DeniedEntities, Does.Contain(1));
+        Assert.That(source.DeniedEntities, Does.Not.Contain(2));
+        
+        Assert.That(source.AllowedEntities, Is.Not.Empty);
+        Assert.That(source.AllowedEntities, Does.Not.Contain(1));
+        Assert.That(source.AllowedEntities, Does.Contain(2));
+        
+        source.AddAllowedEntity(1);
+        
+        Assert.That(source.DeniedEntities, Is.Empty);
+        
+        Assert.That(source.AllowedEntities, Is.Not.Empty);
+        Assert.That(source.AllowedEntities, Does.Contain(1));
+        Assert.That(source.AllowedEntities, Does.Contain(2));
+    }
+    
+    [Test]
+    public void TestAddingDeniedEntities()
+    {
+        var source = new MessageFilterSpecification("1");
+        
+        Assert.That(source.AllowedEntities, Is.Not.Empty);
+        Assert.That(source.AllowedEntities, Does.Contain(1));
+        
+        Assert.That(source.DeniedEntities, Is.Empty);
+        
+        source.AddDeniedEntity(2);
+        
+        Assert.That(source.AllowedEntities, Is.Not.Empty);
+        Assert.That(source.AllowedEntities, Does.Contain(1));
+        Assert.That(source.AllowedEntities, Does.Not.Contain(2));
+        
+        Assert.That(source.DeniedEntities, Is.Not.Empty);
+        Assert.That(source.DeniedEntities, Does.Not.Contain(1));
+        Assert.That(source.DeniedEntities, Does.Contain(2));
+        
+        source.AddDeniedEntity(1);
+        
+        Assert.That(source.AllowedEntities, Is.Empty);
+        
+        Assert.That(source.DeniedEntities, Is.Not.Empty);
+        Assert.That(source.DeniedEntities, Does.Contain(1));
+        Assert.That(source.DeniedEntities, Does.Contain(2));
+    }
 }

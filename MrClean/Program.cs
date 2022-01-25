@@ -1,4 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using MrClean.Configuration;
+using MrClean.Data;
 using MrClean.Services;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -8,8 +11,13 @@ var host = Host.CreateDefaultBuilder(args)
     })
     .ConfigureServices((context, services) =>
     {
-        services.AddHostedService<DiscordBotService>();
         services.Configure<DiscordOptions>(context.Configuration.GetRequiredSection(DiscordOptions.Section));
+        
+        services.AddHostedService<DiscordBotService>();
+        services.AddDbContextFactory<MrCleanDbContext>(options =>
+        {
+            options.UseNpgsql(context.Configuration.GetConnectionString("Default"));
+        });
     })
     .Build();
 

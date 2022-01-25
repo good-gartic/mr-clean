@@ -17,7 +17,7 @@ public class SlashCommandDispatcher
         _options = options.Value;
     }
 
-    public async Task RegisterSlashCommands(DiscordSocketClient client)
+    public async Task RegisterSlashCommandsAsync(DiscordSocketClient client)
     {
         var guild = client.GetGuild(_options.GuildId);
         var commands = _commands.Select(c => c.Properties).ToArray();

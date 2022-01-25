@@ -65,6 +65,6 @@ public class DiscordBotService : BackgroundService
         }
 
         await _client.SetGameAsync(type: ActivityType.Watching, name: $"for messages in {guild.Name}");
-        await _dispatcher.RegisterSlashCommands(_client);
+        await _dispatcher.RegisterSlashCommandsAsync(_client);
     }
 }

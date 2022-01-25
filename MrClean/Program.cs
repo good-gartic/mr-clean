@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using MrClean.Configuration;
 using MrClean.Data;
 using MrClean.Services;

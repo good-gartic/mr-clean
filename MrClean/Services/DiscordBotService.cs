@@ -48,6 +48,15 @@ public class DiscordBotService : BackgroundService
 
     private async Task HandleReadyEvent()
     {
-        await _client.SetGameAsync(type: ActivityType.Watching, name: "for messages");
+        var guild = _client.GetGuild(_options.GuildId);
+        
+        // Validate, that the guild is configuration is correct
+        if (guild == null)
+        {
+            throw new ApplicationException($"The configured guild (id = {_options.GuildId}) cannot be found!");
+        }
+        
+        await _client.SetGameAsync(type: ActivityType.Watching, name: $"for messages in {guild.Name}");
+
     }
 }

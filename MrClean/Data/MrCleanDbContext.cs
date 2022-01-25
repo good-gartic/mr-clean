@@ -3,7 +3,7 @@ using MrClean.Models;
 
 namespace MrClean.Data;
 
-#nullable enable
+#nullable disable
 public class MrCleanDbContext : DbContext
 {
     public MrCleanDbContext(DbContextOptions<MrCleanDbContext> options) : base(options)

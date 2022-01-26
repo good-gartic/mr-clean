@@ -7,11 +7,11 @@ using MrClean.Models;
 
 namespace MrClean.Commands.Filters;
 
-public class AddMessageFilterSpecificationCommand : ISlashCommandProvider
+public class AllowMessageFilterSpecificationCommand : ISlashCommandProvider
 {
     private readonly IDbContextFactory<MrCleanDbContext> _factory;
 
-    public AddMessageFilterSpecificationCommand(IDbContextFactory<MrCleanDbContext> factory)
+    public AllowMessageFilterSpecificationCommand(IDbContextFactory<MrCleanDbContext> factory)
     {
         _factory = factory;
     }
@@ -77,12 +77,10 @@ public class AddMessageFilterSpecificationCommand : ISlashCommandProvider
         if (user != null) filter.UsersSpecification = filter.Users.AddAllowedEntity(user.Id).SpecificationString;
         if (role != null) filter.RolesSpecification = filter.Roles.AddAllowedEntity(role.Id).SpecificationString;
         if (channel != null) filter.ChannelsSpecification = filter.Channels.AddAllowedEntity(channel.Id).SpecificationString;
+
+        context.MessageFilters.Update(filter);
         
         await context.SaveChangesAsync();
-        await command.FollowupAsync(embed: new EmbedBuilder()
-            .WithColor(0x5865F2)
-            .WithTitle($"Message filter #{filter.Id} deleted")
-            .Build()
-        );
+        await command.FollowupAsync(embed: filter.Embed);
     }
 }

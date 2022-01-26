@@ -4,10 +4,11 @@ namespace MrClean.Extensions;
 
 public static class SocketSlashCommandExtensions
 {
-    public static T? GetOption<T>(this SocketSlashCommand command, string name, T? defaultValue = default)
+    public static T? GetOption<T>(this SocketSlashCommand command, string name)
     {
-        var value = command.Data.Options.FirstOrDefault(o => o.Name == name)?.Value;
+        var option = command.Data.Options.FirstOrDefault(o => o.Name == name);
+        var value = option?.Value;
         
-        return value is T type ? type : defaultValue;
+        return value is T casted ? casted : default;
     }
 }

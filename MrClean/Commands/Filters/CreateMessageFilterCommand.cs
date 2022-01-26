@@ -26,7 +26,7 @@ public class CreateMessageFilterCommand : ISlashCommandProvider
                 {
                     Name = "pattern",
                     Description = "Regular expression pattern for matching the messages.",
-                    IsRequired = false,
+                    IsRequired = true,
                     Type = ApplicationCommandOptionType.String
                 },
                 new()

@@ -14,8 +14,10 @@ var host = Host.CreateDefaultBuilder(args)
     {
         services.Configure<DiscordOptions>(context.Configuration.GetRequiredSection(DiscordOptions.Section));
 
+        services.AddTransient<ISlashCommandProvider, ListMessageFiltersCommand>();
         services.AddTransient<ISlashCommandProvider, CreateMessageFilterCommand>();
         services.AddTransient<ISlashCommandProvider, DeleteMessageFilterCommand>();
+        
         services.AddTransient<SlashCommandDispatcher>();
         services.AddHostedService<DiscordBotService>();
         services.AddDbContextFactory<MrCleanDbContext>(options =>

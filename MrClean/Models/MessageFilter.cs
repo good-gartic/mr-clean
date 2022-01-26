@@ -7,7 +7,7 @@ public class MessageFilter
     /// <summary>
     ///     Delay in seconds, before the message is reposted / deleted
     /// </summary>
-    public uint Delay { get; set; } = 0;
+    public int Delay { get; set; } = 0;
 
     /// <summary>
     ///     A regular expression pattern, that determines, whether the filter should be applied
@@ -30,10 +30,24 @@ public class MessageFilter
     ///     If not present (or empty), this filter applies to all users
     /// </summary>
     public string? UsersSpecification { get; set; } = null;
-    
+
     /// <summary>
     ///     Filter specification restricting application of this filter to a selected roles only
     ///     If not present (or empty), this filter applies to all roles
     /// </summary>
     public string? RolesSpecification { get; set; } = null;
+
+    public string Description
+    {
+        get
+        {
+            var delay = Delay <= 0 ? "_This filter is applied immediately_" : $"Applied after `{Delay}` seconds";
+            var pattern = Pattern == null ? "_This filter will match all messages_" : $"`{Pattern}`";
+            var reposting = RepostChannelId == null
+                ? "_This filter does not repost matched messages_"
+                : $"<#{RepostChannelId}>";
+
+            return $"**Filter #{Id}**\nDelay: {delay}\nPattern: {pattern}\nReposting: {reposting}";
+        }
+    }
 }

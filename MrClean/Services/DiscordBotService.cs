@@ -30,8 +30,15 @@ public class DiscordBotService : BackgroundService
         _logger = logger;
         _contextFactory = contextFactory;
         _options = options.Value;
-        _client = new DiscordSocketClient();
         _dispatcher = dispatcher;
+
+        var config = new DiscordSocketConfig()
+        {
+            AlwaysDownloadUsers = true,
+            GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildMembers,
+        };
+        
+        _client = new DiscordSocketClient(config);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

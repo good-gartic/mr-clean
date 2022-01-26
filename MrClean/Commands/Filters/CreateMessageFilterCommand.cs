@@ -67,11 +67,6 @@ public class CreateMessageFilterCommand : ISlashCommandProvider
         await context.MessageFilters.AddAsync(filter);
         await context.SaveChangesAsync();
 
-        await command.FollowupAsync(embed: new EmbedBuilder()
-            .WithColor(0x57F287)
-            .WithTitle($"Message filter created")
-            .WithDescription(filter.Description)
-            .Build()
-        );
+        await command.FollowupAsync(embed: filter.Embed);
     }
 }

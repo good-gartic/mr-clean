@@ -1,3 +1,5 @@
+using Discord;
+
 namespace MrClean.Models;
 
 public class MessageFilter
@@ -37,7 +39,7 @@ public class MessageFilter
     /// </summary>
     public string? RolesSpecification { get; set; } = null;
 
-    public string Description
+    public Embed Embed
     {
         get
         {
@@ -47,7 +49,35 @@ public class MessageFilter
                 ? "_This filter does not repost matched messages_"
                 : $"<#{RepostChannelId}>";
 
-            return $"**Filter #{Id}**\nDelay: {delay}\nPattern: {pattern}\nReposting: {reposting}";
+            var users = DescribeFilterSpecificationString(UsersSpecification, e => $"<@{e}>");
+            var roles = DescribeFilterSpecificationString(RolesSpecification, e => $"<@&{e}>");
+            var channels = DescribeFilterSpecificationString(ChannelsSpecification, e => $"<#{e}>");
+
+            return new EmbedBuilder()
+                .WithColor(0x5865F2)
+                .WithTitle($"Message filter #{Id}")
+                .AddField("Delay before application", delay)
+                .AddField("Regular expression", pattern)
+                .AddField("Message reposting", reposting)
+                .AddField("Users", users)
+                .AddField("Roles", roles)
+                .AddField("Channels", channels)
+                .Build();
         }
+    }
+
+    private static string DescribeFilterSpecificationString(string? specificationString, Func<ulong, string> mapper)
+    {
+        var specification = new MessageFilterSpecification(specificationString);
+        
+        var explicitlyAllowedEntities = specification.AllowedEntities.Count > 0;
+        var explicitlyDeniedEntities = specification.DeniedEntities.Count > 0;
+
+        return (explicitlyAllowedEntities, explicitlyDeniedEntities) switch
+        {
+            (false, false) => "Applies without any limitations",
+            (false, true) => "Applies to everything except " + string.Join(", ", specification.DeniedEntities.Select(mapper)),
+            (true, _) => "Limited only to " + string.Join(", ", specification.AllowedEntities.Select(mapper))
+        };
     }
 }

@@ -19,6 +19,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddTransient<ISlashCommandProvider, DeleteMessageFilterCommand>();
         services.AddTransient<ISlashCommandProvider, AllowMessageFilterSpecificationCommand>();
         services.AddTransient<ISlashCommandProvider, DenyMessageFilterSpecificationCommand>();
+        services.AddTransient<ISlashCommandProvider, ResetMessageFilterSpecificationCommand>();
         
         services.AddTransient<SlashCommandDispatcher>();
         services.AddHostedService<DiscordBotService>();

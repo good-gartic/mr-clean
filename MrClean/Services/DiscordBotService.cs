@@ -50,6 +50,7 @@ public class DiscordBotService : BackgroundService
         _logger.LogInformation("Starting the Mr.Clean Discord bot at {time}", DateTimeOffset.Now);
 
         _client.Ready += HandleReadyEventAsync;
+        _client.Connected += HandleConnectedEventAsync;
 
         await _client.LoginAsync(TokenType.Bot, _options.Token);
         await _client.StartAsync();
@@ -74,5 +75,11 @@ public class DiscordBotService : BackgroundService
 
         await _client.SetGameAsync(type: ActivityType.Watching, name: $"for messages in {guild.Name}");
         await _dispatcher.RegisterSlashCommandsAsync(_client);
+    }
+
+    private Task HandleConnectedEventAsync()
+    {
+        _logger.LogInformation("Connected to the Discord gateway");
+        return Task.CompletedTask;
     }
 }

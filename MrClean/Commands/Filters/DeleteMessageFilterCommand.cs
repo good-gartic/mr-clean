@@ -23,9 +23,10 @@ public class DeleteMessageFilterCommand : ISlashCommandProvider
             {
                 new()
                 {
-                    Name = "filter",
+                    Name = "id",
                     Description = "ID of the filter that should be deleted",
-                    Type = ApplicationCommandOptionType.Integer
+                    Type = ApplicationCommandOptionType.Integer,
+                    IsRequired = true
                 }
             }
         }

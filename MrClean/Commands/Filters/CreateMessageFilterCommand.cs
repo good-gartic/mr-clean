@@ -52,7 +52,7 @@ public class CreateMessageFilterCommand : ISlashCommandProvider
         await command.DeferAsync();
         
         var pattern = command.GetOption<string>("pattern");
-        var delay = command.GetOption<int>("delay");
+        var delay = Math.Clamp(command.GetOption<int>("delay"), 0, 120);
         var channel = command.GetOption<SocketGuildChannel>("repost-channel");
 
         await using var context = await _factory.CreateDbContextAsync();

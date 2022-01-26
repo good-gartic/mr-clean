@@ -28,6 +28,8 @@ public class SlashCommandDispatcher
         var guild = client.GetGuild(_options.GuildId);
         var commands = _commands.Select(c => c.Properties).ToArray();
 
+        client.SlashCommandExecuted += DispatchCommandAsync;
+        
         await guild.BulkOverwriteApplicationCommandAsync(commands);
     }
 

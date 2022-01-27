@@ -8,7 +8,14 @@ public static class SocketSlashCommandExtensions
     {
         var option = command.Data.Options.FirstOrDefault(o => o.Name == name);
         var value = option?.Value;
-        
-        return value is T casted ? casted : default;
+
+        try
+        {
+            return (T) value!;
+        }
+        catch
+        {
+            return default;
+        }
     }
 }

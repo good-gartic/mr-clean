@@ -29,7 +29,7 @@ public class ListMessageFiltersCommand : ISlashCommandProvider
 
         var filters = await context.MessageFilters.ToListAsync();
 
-        if (filters.Count == 0)
+        if (filters.Count > 0)
         {
             await command.FollowupAsync(embeds: filters.Select(f => f.Embed).ToArray());
             return;

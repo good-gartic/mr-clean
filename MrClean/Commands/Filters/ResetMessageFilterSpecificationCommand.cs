@@ -23,7 +23,7 @@ public class ResetMessageFilterSpecificationCommand : ISlashCommandProvider
             {
                 new()
                 {
-                    Name = "filter",
+                    Name = "id",
                     Description = "ID of the filter that should be reset",
                     Type = ApplicationCommandOptionType.Integer,
                     IsRequired = true
@@ -38,7 +38,7 @@ public class ResetMessageFilterSpecificationCommand : ISlashCommandProvider
 
         await using var context = await _factory.CreateDbContextAsync();
 
-        var id = command.GetOption<int>("filter");
+        var id = command.GetOption<long>("id");
         var filter = await context.MessageFilters.FirstOrDefaultAsync(f => f.Id == id);
 
         if (filter == null)

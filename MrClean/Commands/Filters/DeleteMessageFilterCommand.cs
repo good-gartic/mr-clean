@@ -37,7 +37,7 @@ public class DeleteMessageFilterCommand : ISlashCommandProvider
         await command.DeferAsync();
         await using var context = await _factory.CreateDbContextAsync();
 
-        var id = command.GetOption<int>("filter");
+        var id = command.GetOption<long>("id");
         var filter = await context.MessageFilters.FirstOrDefaultAsync(f => f.Id == id);
 
         if (filter == null)

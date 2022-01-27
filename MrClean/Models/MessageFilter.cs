@@ -62,12 +62,12 @@ public class MessageFilter
             return new EmbedBuilder()
                 .WithColor(0x5865F2)
                 .WithTitle($"Message filter #{Id}")
-                .AddField("Delay before application", delay)
-                .AddField("Regular expression", pattern)
-                .AddField("Message reposting", reposting)
-                .AddField("Users", users)
-                .AddField("Roles", roles)
-                .AddField("Channels", channels)
+                .AddField("Delay before application", delay, true)
+                .AddField("Regular expression", pattern, true)
+                .AddField("Message reposting", reposting, true)
+                .AddField("Users", users, true)
+                .AddField("Roles", roles, true)
+                .AddField("Channels", channels, true)
                 .Build();
         }
     }

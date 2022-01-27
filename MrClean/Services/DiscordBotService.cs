@@ -18,19 +18,23 @@ public class DiscordBotService : BackgroundService
 
     private readonly SlashCommandDispatcher _dispatcher;
 
+    private readonly MessageFilteringService _filter;
+
     private readonly IDbContextFactory<MrCleanDbContext> _contextFactory;
 
     public DiscordBotService(
         ILogger<DiscordBotService> logger,
         IOptions<DiscordOptions> options,
         IDbContextFactory<MrCleanDbContext> contextFactory, 
-        SlashCommandDispatcher dispatcher
+        SlashCommandDispatcher dispatcher, 
+        MessageFilteringService filter
     )
     {
         _logger = logger;
         _contextFactory = contextFactory;
         _options = options.Value;
         _dispatcher = dispatcher;
+        _filter = filter;
 
         var config = new DiscordSocketConfig()
         {
@@ -51,6 +55,8 @@ public class DiscordBotService : BackgroundService
 
         _client.Ready += HandleReadyEventAsync;
         _client.Connected += HandleConnectedEventAsync;
+        
+        _filter.RegisterMessageHandler(_client);
 
         await _client.LoginAsync(TokenType.Bot, _options.Token);
         await _client.StartAsync();

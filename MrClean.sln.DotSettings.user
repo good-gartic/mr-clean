@@ -1,5 +1,5 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">/home/jirka/.cache/JetBrains/Rider2021.3/resharper-host/temp/Rider/vAny/CoverageData/_MrClean.-739653332/Snapshot/snapshot.utdcvr</s:String>
+	
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=87d13827_002D299d_002D40a6_002Dab49_002D644342bd970f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="MessageFilterSpecificationTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
     &lt;TestId&gt;NUnit3x::B0D15A44-12D5-417D-89EA-D9596F573F91::net6.0::MrClean.Tests.Models.MessageFilterSpecificationTests&lt;/TestId&gt;

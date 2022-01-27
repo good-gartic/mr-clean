@@ -22,6 +22,8 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddTransient<ISlashCommandProvider, ResetMessageFilterSpecificationCommand>();
         
         services.AddTransient<SlashCommandDispatcher>();
+        services.AddTransient<MessageFilteringService>();
+        
         services.AddHostedService<DiscordBotService>();
         services.AddDbContextFactory<MrCleanDbContext>(options =>
         {

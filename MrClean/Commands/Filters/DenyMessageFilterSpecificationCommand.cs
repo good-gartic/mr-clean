@@ -3,7 +3,6 @@ using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using MrClean.Data;
 using MrClean.Extensions;
-using MrClean.Models;
 
 namespace MrClean.Commands.Filters;
 

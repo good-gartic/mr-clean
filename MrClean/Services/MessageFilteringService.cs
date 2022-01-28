@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using Discord;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;

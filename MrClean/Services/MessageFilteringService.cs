@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Discord;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -46,19 +47,41 @@ public class MessageFilteringService
         {
             return;
         }
-        
+
         await Task.Delay(matching.Delay * 1000);
 
         if (matching.RepostChannelId is not null)
         {
             var repostChannel = channel.Guild.GetTextChannel(matching.RepostChannelId.Value);
+            var embed = new EmbedBuilder()
+                .WithColor(0x5865F2)
+                .WithAuthor(message.Author)
+                .WithDescription(message.Content)
+                .WithTimestamp(message.EditedTimestamp ?? message.CreatedAt)
+                .WithFooter("Reposted from #" + channel.Name)
+                .Build();
 
-            await repostChannel.SendMessageAsync(
-                text: message.Content,
-                embeds: message.Embeds.ToArray(),
-                stickers: message.Stickers.ToArray(),
-                messageReference: message.Reference 
+            // Repost the message embed and all other attached embeds
+            var embeds = new List<Embed> {embed};
+
+            embeds.AddRange(message.Embeds);
+
+            var repostedMessage = await repostChannel.SendMessageAsync(embeds: embeds.ToArray());
+
+            // Repost all message attachments (files, images, videos...)
+            var httpClient = new HttpClient();
+            var attachments = await Task.WhenAll(
+                message.Attachments.Select(async a =>
+                    new FileAttachment(
+                        await httpClient.GetStreamAsync(a.Url),
+                        a.Filename, 
+                        a.Filename,
+                        a.IsSpoiler()
+                    )
+                )
             );
+
+            await repostChannel.SendFilesAsync(attachments, "", messageReference: repostedMessage.Reference);
         }
 
         await message.DeleteAsync();

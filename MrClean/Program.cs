@@ -13,14 +13,14 @@ var host = Host.CreateDefaultBuilder(args)
         services.Configure<DiscordOptions>(context.Configuration.GetRequiredSection(DiscordOptions.Section));
 
         services.AddCommands(collection => collection
-            .AddCommand<ListMessageFiltersCommand>()
+            .AddCommand<AllowMessageFilterSpecificationCommand>()
             .AddCommand<CreateMessageFilterCommand>()
             .AddCommand<DeleteMessageFilterCommand>()
-            .AddCommand<AllowMessageFilterSpecificationCommand>()
             .AddCommand<DenyMessageFilterSpecificationCommand>()
-            .AddCommand<ResetMessageFilterSpecificationCommand>()
-            .AddCommand<EnableFilterCommand>()
             .AddCommand<DisableFilterCommand>()
+            .AddCommand<EnableFilterCommand>()
+            .AddCommand<ListMessageFiltersCommand>()
+            .AddCommand<ResetMessageFilterSpecificationCommand>()
         );
 
         services.AddTransient<MessageFilteringService>();

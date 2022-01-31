@@ -3,29 +3,27 @@ using MrClean.Commands;
 using MrClean.Commands.Filters;
 using MrClean.Configuration;
 using MrClean.Data;
+using MrClean.Extensions;
 using MrClean.Services;
 
 var host = Host.CreateDefaultBuilder(args)
-    .ConfigureAppConfiguration((context, builder) =>
-    {
-        builder.AddEnvironmentVariables();
-    })
+    .ConfigureAppConfiguration((context, builder) => { builder.AddEnvironmentVariables(); })
     .ConfigureServices((context, services) =>
     {
         services.Configure<DiscordOptions>(context.Configuration.GetRequiredSection(DiscordOptions.Section));
 
-        services.AddTransient<ISlashCommandProvider, ListMessageFiltersCommand>();
-        services.AddTransient<ISlashCommandProvider, CreateMessageFilterCommand>();
-        services.AddTransient<ISlashCommandProvider, DeleteMessageFilterCommand>();
-        services.AddTransient<ISlashCommandProvider, AllowMessageFilterSpecificationCommand>();
-        services.AddTransient<ISlashCommandProvider, DenyMessageFilterSpecificationCommand>();
-        services.AddTransient<ISlashCommandProvider, ResetMessageFilterSpecificationCommand>();
-        services.AddTransient<ISlashCommandProvider, EnableFilterCommand>();
-        services.AddTransient<ISlashCommandProvider, DisableFilterCommand>();
-        
-        services.AddTransient<SlashCommandDispatcher>();
+        services.AddCommands(collection => collection
+            .AddCommand<ListMessageFiltersCommand>()
+            .AddCommand<CreateMessageFilterCommand>()
+            .AddCommand<DeleteMessageFilterCommand>()
+            .AddCommand<AllowMessageFilterSpecificationCommand>()
+            .AddCommand<DenyMessageFilterSpecificationCommand>()
+            .AddCommand<ResetMessageFilterSpecificationCommand>()
+            .AddCommand<EnableFilterCommand>()
+            .AddCommand<DisableFilterCommand>()
+        );
+
         services.AddTransient<MessageFilteringService>();
-        
         services.AddHostedService<DiscordBotService>();
         services.AddDbContextFactory<MrCleanDbContext>(options =>
         {

@@ -7,6 +7,11 @@ public class MessageFilter
     public int Id { get; set; }
 
     /// <summary>
+    ///     Only apply this filter if it is enabled
+    /// </summary>
+    public bool Enabled { get; set; } = false;
+
+    /// <summary>
     ///     Delay in seconds, before the message is reposted / deleted
     /// </summary>
     public int Delay { get; set; } = 0;
@@ -72,7 +77,8 @@ public class MessageFilter
         }
     }
 
-    private static string DescribeFilterSpecificationString(MessageFilterSpecification specification, Func<ulong, string> mapper)
+    private static string DescribeFilterSpecificationString(MessageFilterSpecification specification,
+        Func<ulong, string> mapper)
     {
         var explicitlyAllowedEntities = specification.AllowedEntities.Count > 0;
         var explicitlyDeniedEntities = specification.DeniedEntities.Count > 0;

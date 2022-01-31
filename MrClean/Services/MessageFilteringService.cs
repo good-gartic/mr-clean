@@ -40,7 +40,7 @@ public class MessageFilteringService
 
         await using var context = await _factory.CreateDbContextAsync();
 
-        var filters = await context.MessageFilters.ToListAsync();
+        var filters = await context.MessageFilters.Where(f => f.Enabled).ToListAsync();
         var matching = filters.FirstOrDefault(f => Matches(f, message));
 
         if (matching == null)
@@ -68,20 +68,23 @@ public class MessageFilteringService
 
             var repostedMessage = await repostChannel.SendMessageAsync(embeds: embeds.ToArray());
 
-            // Repost all message attachments (files, images, videos...)
-            var httpClient = new HttpClient();
-            var attachments = await Task.WhenAll(
-                message.Attachments.Select(async a =>
-                    new FileAttachment(
-                        await httpClient.GetStreamAsync(a.Url),
-                        a.Filename, 
-                        a.Filename,
-                        a.IsSpoiler()
+            if (message.Attachments.Count != 0)
+            {
+                // Repost all message attachments (files, images, videos...)
+                var httpClient = new HttpClient();
+                var attachments = await Task.WhenAll(
+                    message.Attachments.Select(async a =>
+                        new FileAttachment(
+                            await httpClient.GetStreamAsync(a.Url),
+                            a.Filename,
+                            a.Filename,
+                            a.IsSpoiler()
+                        )
                     )
-                )
-            );
-
-            await repostChannel.SendFilesAsync(attachments, "", messageReference: repostedMessage.Reference);
+                );
+                
+                await repostChannel.SendFilesAsync(attachments, "", messageReference: repostedMessage.Reference);
+            }
         }
 
         await message.DeleteAsync();

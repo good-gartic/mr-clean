@@ -54,6 +54,7 @@ public class MessageFilter
     {
         get
         {
+            var emoji = Enabled ? "🟢" : "🔴";
             var delay = Delay <= 0 ? "_This filter is applied immediately_" : $"Applied after `{Delay}` seconds";
             var pattern = Pattern == null ? "_This filter will match all messages_" : $"`{Pattern}`";
             var reposting = RepostChannelId == null
@@ -66,7 +67,7 @@ public class MessageFilter
 
             return new EmbedBuilder()
                 .WithColor(0x5865F2)
-                .WithTitle($"Message filter #{Id}")
+                .WithTitle($"{emoji} Message filter #{Id}")
                 .AddField("Delay before application", delay, true)
                 .AddField("Regular expression", pattern, true)
                 .AddField("Message reposting", reposting, true)

@@ -20,6 +20,8 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddTransient<ISlashCommandProvider, AllowMessageFilterSpecificationCommand>();
         services.AddTransient<ISlashCommandProvider, DenyMessageFilterSpecificationCommand>();
         services.AddTransient<ISlashCommandProvider, ResetMessageFilterSpecificationCommand>();
+        services.AddTransient<ISlashCommandProvider, EnableFilterCommand>();
+        services.AddTransient<ISlashCommandProvider, DisableFilterCommand>();
         
         services.AddTransient<SlashCommandDispatcher>();
         services.AddTransient<MessageFilteringService>();

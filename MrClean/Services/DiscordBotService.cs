@@ -55,6 +55,7 @@ public class DiscordBotService : BackgroundService
 
         _client.Ready += HandleReadyEventAsync;
         _client.Connected += HandleConnectedEventAsync;
+        _client.Log += HandleLogMessageAsync;
         
         _filter.RegisterMessageHandler(_client);
 
@@ -86,6 +87,12 @@ public class DiscordBotService : BackgroundService
     private Task HandleConnectedEventAsync()
     {
         _logger.LogInformation("Connected to the Discord gateway");
+        return Task.CompletedTask;
+    }
+
+    private Task HandleLogMessageAsync(LogMessage message)
+    {
+        _logger.LogInformation(message.Message);
         return Task.CompletedTask;
     }
 }

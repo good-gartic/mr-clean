@@ -13,15 +13,19 @@ public class SlashCommandDispatcher
 
     private readonly IEnumerable<ISlashCommandProvider> _commands;
 
+    private readonly IHostEnvironment _environment;
+
     public SlashCommandDispatcher(
         IOptions<DiscordOptions> options,
         ILogger<SlashCommandDispatcher> logger,
-        IEnumerable<ISlashCommandProvider> commands
+        IEnumerable<ISlashCommandProvider> commands,
+        IHostEnvironment environment
     )
     {
         _options = options.Value;
         _logger = logger;
         _commands = commands;
+        _environment = environment;
     }
 
     public async Task RegisterSlashCommandsAsync(DiscordSocketClient client)
@@ -30,9 +34,16 @@ public class SlashCommandDispatcher
 
         var guild = client.GetGuild(_options.GuildId);
         var commands = _commands.Select(c => c.Properties).ToArray();
+
+        // If running in the production mode, register the commands globally instead of using guild-local ones
+        if (_environment.IsDevelopment())
+        {
+            await guild.BulkOverwriteApplicationCommandAsync(commands);
+            await guild.DownloadUsersAsync();
+            return;
+        }
         
-        await guild.BulkOverwriteApplicationCommandAsync(commands);
-        await guild.DownloadUsersAsync();
+        await client.BulkOverwriteGlobalApplicationCommandsAsync(commands);
     }
 
     private async Task DispatchCommandAsync(SocketSlashCommand command)
@@ -85,7 +96,8 @@ public class SlashCommandDispatcher
                 embed: new EmbedBuilder()
                     .WithColor(0xED4245)
                     .WithTitle("I'm sorry, but this command can be used only by the mods.")
-                    .WithDescription("If you think you should be allowed to invoke this command, please open a new issue.")
+                    .WithDescription(
+                        "If you think you should be allowed to invoke this command, please open a new issue.")
                     .Build()
             );
 

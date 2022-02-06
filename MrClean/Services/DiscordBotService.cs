@@ -25,8 +25,8 @@ public class DiscordBotService : BackgroundService
     public DiscordBotService(
         ILogger<DiscordBotService> logger,
         IOptions<DiscordOptions> options,
-        IDbContextFactory<MrCleanDbContext> contextFactory, 
-        SlashCommandDispatcher dispatcher, 
+        IDbContextFactory<MrCleanDbContext> contextFactory,
+        SlashCommandDispatcher dispatcher,
         MessageFilteringService filter
     )
     {
@@ -41,7 +41,7 @@ public class DiscordBotService : BackgroundService
             AlwaysDownloadUsers = true,
             GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildMembers,
         };
-        
+
         _client = new DiscordSocketClient(config);
     }
 
@@ -56,7 +56,7 @@ public class DiscordBotService : BackgroundService
         _client.Ready += HandleReadyEventAsync;
         _client.Connected += HandleConnectedEventAsync;
         _client.Log += HandleLogMessageAsync;
-        
+
         _filter.RegisterMessageHandler(_client);
 
         await _client.LoginAsync(TokenType.Bot, _options.Token);
@@ -72,16 +72,24 @@ public class DiscordBotService : BackgroundService
 
     private async Task HandleReadyEventAsync()
     {
-        var guild = _client.GetGuild(_options.GuildId);
-
-        // Validate, that the guild is configuration is correct
-        if (guild == null)
+        try
         {
-            throw new ApplicationException($"The configured guild (id = {_options.GuildId}) cannot be found!");
-        }
+            var guild = _client.GetGuild(_options.GuildId);
 
-        await _client.SetGameAsync(type: ActivityType.Watching, name: $"for messages in {guild.Name}");
-        await _dispatcher.RegisterSlashCommandsAsync(_client);
+            // Validate, that the guild is configuration is correct
+            if (guild == null)
+            {
+                throw new ApplicationException($"The configured guild (id = {_options.GuildId}) cannot be found!");
+            }
+
+            await _client.SetGameAsync(type: ActivityType.Watching, name: $"for messages in {guild.Name}");
+            await _dispatcher.RegisterSlashCommandsAsync(_client);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogCritical("Exception in ready event handler: {exception}", exception);
+            throw;
+        }
     }
 
     private Task HandleConnectedEventAsync()

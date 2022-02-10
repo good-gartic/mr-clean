@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using Discord;
 
 namespace MrClean.Models;
@@ -32,15 +33,24 @@ public class MessageFilter
     /// </summary>
     public string? ChannelsSpecification { get; set; } = null;
 
-    public MessageFilterSpecification Channels => new(ChannelsSpecification);
-
+    [NotMapped]
+    public MessageFilterSpecification Channels
+    {
+        get => new(ChannelsSpecification);
+        set => ChannelsSpecification = value.SpecificationString;
+    }
     /// <summary>
     ///     Filter specification restricting application of this filter to a selected users only
     ///     If not present (or empty), this filter applies to all users
     /// </summary>
     public string? UsersSpecification { get; set; } = null;
 
-    public MessageFilterSpecification Users => new(UsersSpecification);
+    [NotMapped]
+    public MessageFilterSpecification Users
+    {
+        get => new(UsersSpecification);
+        set => UsersSpecification = value.SpecificationString;
+    }
 
     /// <summary>
     ///     Filter specification restricting application of this filter to a selected roles only
@@ -48,7 +58,12 @@ public class MessageFilter
     /// </summary>
     public string? RolesSpecification { get; set; } = null;
 
-    public MessageFilterSpecification Roles => new(RolesSpecification);
+    [NotMapped]
+    public MessageFilterSpecification Roles
+    {
+        get => new(RolesSpecification);
+        set => RolesSpecification = value.SpecificationString;
+    }
 
     public Embed Embed
     {

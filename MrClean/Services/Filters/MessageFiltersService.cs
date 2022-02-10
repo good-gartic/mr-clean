@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using MrClean.Data;
 using MrClean.Exceptions;
@@ -25,17 +26,18 @@ public class MessageFiltersService : IMessageFiltersService
     public async Task<List<MessageFilter>> ListMessageFiltersAsync()
     {
         await using var context = await _factory.CreateDbContextAsync();
-        
+
         return await context.MessageFilters.ToListAsync();
     }
 
-    public async Task<MessageFilter> CreateMessageFilterAsync(string pattern, int delay = 0, ulong? repostChannelId = null)
+    public async Task<MessageFilter> CreateMessageFilterAsync(string pattern, int delay = 0,
+        ulong? repostChannelId = null)
     {
         await using var context = await _factory.CreateDbContextAsync();
 
         if (delay is < 0 or > 120)
         {
-            throw new ArgumentOutOfRangeException(nameof(delay)); 
+            throw new ArgumentOutOfRangeException(nameof(delay));
         }
 
         var filter = new MessageFilter
@@ -53,12 +55,20 @@ public class MessageFiltersService : IMessageFiltersService
 
     public async Task<MessageFilter> EnableMessageFilterAsync(int filterId)
     {
-        return await ApplyChangesToFilter(filterId, f => f.Enabled = true);
+        return await ApplyChangesToFilter(filterId, f =>
+        {
+            f.Enabled = true;
+            return f;
+        });
     }
 
     public async Task<MessageFilter> DisableMessageFilterAsync(int filterId)
     {
-        return await ApplyChangesToFilter(filterId, f => f.Enabled = false);
+        return await ApplyChangesToFilter(filterId, f =>
+        {
+            f.Enabled = false;
+            return f;
+        });
     }
 
     public async Task<MessageFilter> DeleteMessageFilterAsync(int filterId)
@@ -68,7 +78,7 @@ public class MessageFiltersService : IMessageFiltersService
         var filter = await GetMessageFilterAsync(filterId);
 
         context.MessageFilters.Remove(filter);
-        
+
         await context.SaveChangesAsync();
 
         return filter;
@@ -78,17 +88,23 @@ public class MessageFiltersService : IMessageFiltersService
     {
         return await ApplyChangesToFilter(filterId, f =>
         {
-            var _ = type switch
+            switch (type)
             {
-                MessageFilterSpecificationType.User => f.Users.AddAllowedEntity(id),
-                MessageFilterSpecificationType.Role => f.Roles.AddAllowedEntity(id),
-                MessageFilterSpecificationType.Channel => f.Channels.AddAllowedEntity(id),
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            };
-
-            f.UsersSpecification = f.Users.SpecificationString;
-            f.RolesSpecification = f.Roles.SpecificationString;
-            f.ChannelsSpecification = f.Channels.SpecificationString;
+                case MessageFilterSpecificationType.User:
+                    f.Users = f.Users.AddAllowedEntity(id);
+                    return f;
+                
+                case MessageFilterSpecificationType.Role:
+                    f.Roles = f.Roles.AddAllowedEntity(id);
+                    return f;
+                
+                case MessageFilterSpecificationType.Channel:
+                    f.Channels = f.Channels.AddAllowedEntity(id);
+                    return f;
+                
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
         });
     }
 
@@ -96,17 +112,23 @@ public class MessageFiltersService : IMessageFiltersService
     {
         return await ApplyChangesToFilter(filterId, f =>
         {
-            var _ = type switch
+            switch (type)
             {
-                MessageFilterSpecificationType.User => f.Users.AddDeniedEntity(id),
-                MessageFilterSpecificationType.Role => f.Roles.AddDeniedEntity(id),
-                MessageFilterSpecificationType.Channel => f.Channels.AddDeniedEntity(id),
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            };
+                case MessageFilterSpecificationType.User:
+                    f.Users = f.Users.AddDeniedEntity(id);
+                    return f;
 
-            f.UsersSpecification = f.Users.SpecificationString;
-            f.RolesSpecification = f.Roles.SpecificationString;
-            f.ChannelsSpecification = f.Channels.SpecificationString;
+                case MessageFilterSpecificationType.Role:
+                    f.Roles = f.Roles.AddDeniedEntity(id);
+                    return f;
+
+                case MessageFilterSpecificationType.Channel:
+                    f.Channels = f.Channels.AddDeniedEntity(id);
+                    return f;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
         });
     }
 
@@ -117,20 +139,22 @@ public class MessageFiltersService : IMessageFiltersService
             f.UsersSpecification = null;
             f.RolesSpecification = null;
             f.ChannelsSpecification = null;
+
+            return f;
         });
     }
 
-    private async Task<MessageFilter> ApplyChangesToFilter(int id, Action<MessageFilter> transform)
+    private async Task<MessageFilter> ApplyChangesToFilter(int id, Func<MessageFilter, MessageFilter> transform)
     {
         await using var context = await _factory.CreateDbContextAsync();
 
         var filter = await GetMessageFilterAsync(id);
-        
-        transform(filter);
-        context.MessageFilters.Update(filter);
+        var updated = transform(filter);
+
+        context.MessageFilters.Update(updated);
 
         await context.SaveChangesAsync();
 
-        return filter;
+        return updated;
     }
 }

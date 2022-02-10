@@ -1,8 +1,5 @@
-using System.Runtime.InteropServices;
 using Discord;
 using Discord.WebSocket;
-using Microsoft.EntityFrameworkCore;
-using MrClean.Data;
 using MrClean.Exceptions;
 using MrClean.Extensions;
 using MrClean.Models;
@@ -12,9 +9,9 @@ namespace MrClean.Commands.Filters;
 
 public class AllowMessageFilterSpecificationCommand : ISlashCommandProvider
 {
-    private readonly MessageFiltersService _service;
+    private readonly IMessageFiltersService _service;
 
-    public AllowMessageFilterSpecificationCommand(MessageFiltersService service)
+    public AllowMessageFilterSpecificationCommand(IMessageFiltersService service)
     {
         _service = service;
     }
@@ -67,9 +64,9 @@ public class AllowMessageFilterSpecificationCommand : ISlashCommandProvider
             var role = command.GetOption<SocketRole>("role");
             var channel = command.GetOption<SocketGuildChannel>("channel");
 
-            if (user != null) await _service.AddAllowedEntityAsync(id, MessageFilterSpecificationType.User, user.Id);
-            if (role != null) await _service.AddAllowedEntityAsync(id, MessageFilterSpecificationType.User, role.Id);
-            if (channel != null) await _service.AddAllowedEntityAsync(id, MessageFilterSpecificationType.User, channel.Id);
+            if (user != null) filter = await _service.AddAllowedEntityAsync(id, MessageFilterSpecificationType.User, user.Id);
+            if (role != null) filter = await _service.AddAllowedEntityAsync(id, MessageFilterSpecificationType.Role, role.Id);
+            if (channel != null) filter = await _service.AddAllowedEntityAsync(id, MessageFilterSpecificationType.Channel, channel.Id);
 
             await command.FollowupAsync(embed: filter.Embed);
         }

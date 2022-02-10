@@ -2,6 +2,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore.Query;
+using MrClean.Models;
 using MrClean.Services.Filters;
 
 namespace MrClean.Commands;
@@ -65,8 +66,19 @@ public class MessageCommandsModule : ModuleBase<SocketCommandContext>
         await Context.Message.ReplyAsync(embed: filter.Embed);
     }
 
-    [Command("allow")]
-    public async Task AddAllowedEntity(int id)
+    [Command("only")]
+    public async Task AddAllowedEntity(int id, SpecificationEntityType entityType, ulong entityId)
     {
+        var filter = await _service.AddAllowedEntityAsync(id, entityType, entityId);
+
+        await Context.Message.ReplyAsync(embed: filter.Embed);
+    }
+    
+    [Command("exclude")]
+    public async Task AddDeniedEntity(int id, SpecificationEntityType entityType, ulong entityId)
+    {
+        var filter = await _service.AddDeniedEntityAsync(id, entityType, entityId);
+
+        await Context.Message.ReplyAsync(embed: filter.Embed);
     }
 }

@@ -4,6 +4,8 @@ namespace MrClean.Services.Filters;
 
 public interface IMessageFiltersService
 {
+    Task<MessageFilter> GetMessageFilterAsync(int filterId);
+    
     Task<IEnumerable<MessageFilter>> ListMessageFiltersAsync();
     
     Task<MessageFilter> CreateMessageFilterAsync(string pattern, long delay = 0, ulong repostChannelId = 0);

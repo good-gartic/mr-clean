@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MrClean.Data;
+using MrClean.Exceptions;
 using MrClean.Models;
 
 namespace MrClean.Services.Filters;
@@ -13,9 +14,19 @@ public class MessageFiltersService : IMessageFiltersService
         _factory = factory;
     }
 
-    public Task<IEnumerable<MessageFilter>> ListMessageFiltersAsync()
+    public async Task<MessageFilter> GetMessageFilterAsync(int filterId)
     {
-        throw new NotImplementedException();
+        await using var context = await _factory.CreateDbContextAsync();
+
+        return await context.MessageFilters.FirstOrDefaultAsync(f => f.Id == filterId)
+               ?? throw new MessageFilterNotFoundException();
+    }
+
+    public async Task<IEnumerable<MessageFilter>> ListMessageFiltersAsync()
+    {
+        await using var context = await _factory.CreateDbContextAsync();
+        
+        return await context.MessageFilters.ToListAsync();
     }
 
     public Task<MessageFilter> CreateMessageFilterAsync(string pattern, long delay = 0, ulong repostChannelId = 0)

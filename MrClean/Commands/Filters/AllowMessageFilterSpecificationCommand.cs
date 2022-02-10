@@ -1,19 +1,22 @@
+using System.Runtime.InteropServices;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using MrClean.Data;
+using MrClean.Exceptions;
 using MrClean.Extensions;
 using MrClean.Models;
+using MrClean.Services.Filters;
 
 namespace MrClean.Commands.Filters;
 
 public class AllowMessageFilterSpecificationCommand : ISlashCommandProvider
 {
-    private readonly IDbContextFactory<MrCleanDbContext> _factory;
+    private readonly MessageFiltersService _service;
 
-    public AllowMessageFilterSpecificationCommand(IDbContextFactory<MrCleanDbContext> factory)
+    public AllowMessageFilterSpecificationCommand(MessageFiltersService service)
     {
-        _factory = factory;
+        _service = service;
     }
 
     public ApplicationCommandProperties Properties { get; } = new SlashCommandBuilder()
@@ -54,12 +57,23 @@ public class AllowMessageFilterSpecificationCommand : ISlashCommandProvider
     public async Task HandleCommandInvocationAsync(SocketSlashCommand command)
     {
         await command.DeferAsync();
-        await using var context = await _factory.CreateDbContextAsync();
 
-        var id = command.GetOption<long>("id");
-        var filter = await context.MessageFilters.FirstOrDefaultAsync(f => f.Id == id);
-        
-        if (filter == null)
+        try
+        {
+            var id = (int) command.GetOption<long>("id");
+            var filter = await _service.GetMessageFilterAsync(id);
+            
+            var user = command.GetOption<SocketGuildUser>("user");
+            var role = command.GetOption<SocketRole>("role");
+            var channel = command.GetOption<SocketGuildChannel>("channel");
+
+            if (user != null) await _service.AddAllowedEntityAsync(id, MessageFilterSpecificationType.User, user.Id);
+            if (role != null) await _service.AddAllowedEntityAsync(id, MessageFilterSpecificationType.User, role.Id);
+            if (channel != null) await _service.AddAllowedEntityAsync(id, MessageFilterSpecificationType.User, channel.Id);
+
+            await command.FollowupAsync(embed: filter.Embed);
+        }
+        catch (MessageFilterNotFoundException)
         {
             await command.FollowupAsync(embed: new EmbedBuilder()
                 .WithColor(0xED4245)
@@ -67,20 +81,6 @@ public class AllowMessageFilterSpecificationCommand : ISlashCommandProvider
                 .WithDescription("To list all available filters, use the `/list-filters` command.")
                 .Build()
             );
-            return;
         }
-
-        var user = command.GetOption<SocketGuildUser>("user");
-        var role = command.GetOption<SocketRole>("role");
-        var channel = command.GetOption<SocketGuildChannel>("channel");
-
-        if (user != null) filter.UsersSpecification = filter.Users.AddAllowedEntity(user.Id).SpecificationString;
-        if (role != null) filter.RolesSpecification = filter.Roles.AddAllowedEntity(role.Id).SpecificationString;
-        if (channel != null) filter.ChannelsSpecification = filter.Channels.AddAllowedEntity(channel.Id).SpecificationString;
-
-        context.MessageFilters.Update(filter);
-        
-        await context.SaveChangesAsync();
-        await command.FollowupAsync(embed: filter.Embed);
     }
 }

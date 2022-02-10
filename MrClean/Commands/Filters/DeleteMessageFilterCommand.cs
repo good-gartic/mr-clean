@@ -2,17 +2,19 @@ using Discord;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using MrClean.Data;
+using MrClean.Exceptions;
 using MrClean.Extensions;
+using MrClean.Services.Filters;
 
 namespace MrClean.Commands.Filters;
 
 public class DeleteMessageFilterCommand : ISlashCommandProvider
 {
-    private readonly IDbContextFactory<MrCleanDbContext> _factory;
+    private readonly IMessageFiltersService _service;
 
-    public DeleteMessageFilterCommand(IDbContextFactory<MrCleanDbContext> factory)
+    public DeleteMessageFilterCommand(IMessageFiltersService service)
     {
-        _factory = factory;
+        _service = service;
     }
 
     public ApplicationCommandProperties Properties { get; } = new SlashCommandBuilder()
@@ -35,12 +37,19 @@ public class DeleteMessageFilterCommand : ISlashCommandProvider
     public async Task HandleCommandInvocationAsync(SocketSlashCommand command)
     {
         await command.DeferAsync();
-        await using var context = await _factory.CreateDbContextAsync();
 
-        var id = command.GetOption<long>("id");
-        var filter = await context.MessageFilters.FirstOrDefaultAsync(f => f.Id == id);
+        var id = (int) command.GetOption<long>("id");
 
-        if (filter == null)
+        try
+        {
+            await _service.DeleteMessageFilterAsync(id);
+            await command.FollowupAsync(embed: new EmbedBuilder()
+                .WithColor(0x5865F2)
+                .WithTitle($"Message filter #{id} deleted")
+                .Build()
+            );
+        }
+        catch (MessageFilterNotFoundException)
         {
             await command.FollowupAsync(embed: new EmbedBuilder()
                 .WithColor(0xED4245)
@@ -48,16 +57,6 @@ public class DeleteMessageFilterCommand : ISlashCommandProvider
                 .WithDescription("To list all available filters, use the `/list-filters` command.")
                 .Build()
             );
-            return;
         }
-
-        context.MessageFilters.Remove(filter);
-        
-        await context.SaveChangesAsync();
-        await command.FollowupAsync(embed: new EmbedBuilder()
-            .WithColor(0x5865F2)
-            .WithTitle($"Message filter #{filter.Id} deleted")
-            .Build()
-        );
     }
 }

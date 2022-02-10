@@ -68,6 +68,7 @@ public class MessageFilter
             return new EmbedBuilder()
                 .WithColor(0x5865F2)
                 .WithTitle($"{emoji} Message filter #{Id}")
+                .WithFooter("This filter is now " + (Enabled ? "enabled" : "disabled"))
                 .AddField("Delay before application", delay, true)
                 .AddField("Regular expression", pattern, true)
                 .AddField("Message reposting", reposting, true)

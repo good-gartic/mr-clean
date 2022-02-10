@@ -2,17 +2,19 @@ using Discord;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using MrClean.Data;
+using MrClean.Exceptions;
 using MrClean.Extensions;
+using MrClean.Services.Filters;
 
 namespace MrClean.Commands.Filters;
 
 public class DisableFilterCommand : ISlashCommandProvider
 {
-    private readonly IDbContextFactory<MrCleanDbContext> _factory;
+    private readonly IMessageFiltersService _service;
 
-    public DisableFilterCommand(IDbContextFactory<MrCleanDbContext> factory)
+    public DisableFilterCommand(IMessageFiltersService service)
     {
-        _factory = factory;
+        _service = service;
     }
 
     public ApplicationCommandProperties Properties { get; } = new SlashCommandBuilder()
@@ -35,12 +37,15 @@ public class DisableFilterCommand : ISlashCommandProvider
     public async Task HandleCommandInvocationAsync(SocketSlashCommand command)
     {
         await command.DeferAsync();
-        await using var context = await _factory.CreateDbContextAsync();
 
-        var id = command.GetOption<long>("id");
-        var filter = await context.MessageFilters.FirstOrDefaultAsync(f => f.Id == id);
-
-        if (filter == null)
+        try
+        {
+            var id = (int) command.GetOption<long>("id");
+            var filter = await _service.DisableMessageFilterAsync(id);
+            
+            await command.FollowupAsync(embed: filter.Embed);
+        }
+        catch(MessageFilterNotFoundException)
         {
             await command.FollowupAsync(embed: new EmbedBuilder()
                 .WithColor(0xED4245)
@@ -48,17 +53,6 @@ public class DisableFilterCommand : ISlashCommandProvider
                 .WithDescription("To list all available filters, use the `/list-filters` command.")
                 .Build()
             );
-            return;
         }
-
-        filter.Enabled = false;
-        context.MessageFilters.Update(filter);
-        
-        await context.SaveChangesAsync();
-        await command.FollowupAsync(embed: new EmbedBuilder()
-            .WithColor(0x5865F2)
-            .WithTitle($"Message filter #{filter.Id} disabled")
-            .Build()
-        );
     }
 }

@@ -22,16 +22,33 @@ public class MessageFiltersService : IMessageFiltersService
                ?? throw new MessageFilterNotFoundException();
     }
 
-    public async Task<IEnumerable<MessageFilter>> ListMessageFiltersAsync()
+    public async Task<List<MessageFilter>> ListMessageFiltersAsync()
     {
         await using var context = await _factory.CreateDbContextAsync();
         
         return await context.MessageFilters.ToListAsync();
     }
 
-    public Task<MessageFilter> CreateMessageFilterAsync(string pattern, long delay = 0, ulong repostChannelId = 0)
+    public async Task<MessageFilter> CreateMessageFilterAsync(string pattern, int delay = 0, ulong? repostChannelId = null)
     {
-        throw new NotImplementedException();
+        await using var context = await _factory.CreateDbContextAsync();
+
+        if (delay is < 0 or > 120)
+        {
+            throw new ArgumentOutOfRangeException(nameof(delay)); 
+        }
+
+        var filter = new MessageFilter
+        {
+            Delay = delay,
+            Pattern = pattern,
+            RepostChannelId = repostChannelId
+        };
+
+        await context.MessageFilters.AddAsync(filter);
+        await context.SaveChangesAsync();
+
+        return filter;
     }
 
     public Task<MessageFilter> EnableMessageFilterAsync(int filterId)

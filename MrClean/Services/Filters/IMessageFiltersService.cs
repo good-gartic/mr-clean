@@ -6,9 +6,9 @@ public interface IMessageFiltersService
 {
     Task<MessageFilter> GetMessageFilterAsync(int filterId);
     
-    Task<IEnumerable<MessageFilter>> ListMessageFiltersAsync();
+    Task<List<MessageFilter>> ListMessageFiltersAsync();
     
-    Task<MessageFilter> CreateMessageFilterAsync(string pattern, long delay = 0, ulong repostChannelId = 0);
+    Task<MessageFilter> CreateMessageFilterAsync(string pattern, int delay = 0, ulong? repostChannelId = null);
 
     Task<MessageFilter> EnableMessageFilterAsync(int filterId);
     

@@ -4,16 +4,17 @@ using Microsoft.EntityFrameworkCore;
 using MrClean.Data;
 using MrClean.Extensions;
 using MrClean.Models;
+using MrClean.Services.Filters;
 
 namespace MrClean.Commands.Filters;
 
 public class CreateMessageFilterCommand : ISlashCommandProvider
 {
-    private readonly IDbContextFactory<MrCleanDbContext> _factory;
+    private readonly IMessageFiltersService _service;
 
-    public CreateMessageFilterCommand(IDbContextFactory<MrCleanDbContext> factory)
+    public CreateMessageFilterCommand(IMessageFiltersService service)
     {
-        _factory = factory;
+        _service = service;
     }
 
     public ApplicationCommandProperties Properties { get; } = new SlashCommandBuilder
@@ -51,21 +52,11 @@ public class CreateMessageFilterCommand : ISlashCommandProvider
     {
         await command.DeferAsync();
         
-        var pattern = command.GetOption<string>("pattern");
+        var pattern = command.GetOption<string>("pattern") ?? throw new ArgumentNullException(nameof(command));
         var delay = (int) Math.Clamp(command.GetOption<long>("delay"), 0, 120);
         var channel = command.GetOption<SocketGuildChannel>("repost-channel");
 
-        await using var context = await _factory.CreateDbContextAsync();
-
-        var filter = new MessageFilter
-        {
-            Delay = delay,
-            Pattern = pattern,
-            RepostChannelId = channel?.Id,
-        };
-
-        await context.MessageFilters.AddAsync(filter);
-        await context.SaveChangesAsync();
+        var filter = await _service.CreateMessageFilterAsync(pattern, delay, channel?.Id);
 
         await command.FollowupAsync(embed: filter.Embed);
     }

@@ -84,50 +84,50 @@ public class MessageFiltersService : IMessageFiltersService
         return filter;
     }
 
-    public async Task<MessageFilter> AddAllowedEntityAsync(int filterId, MessageFilterSpecificationType type, ulong id)
+    public async Task<MessageFilter> AddAllowedEntityAsync(int filterId, SpecificationEntityType entityType, ulong id)
     {
         return await ApplyChangesToFilter(filterId, f =>
         {
-            switch (type)
+            switch (entityType)
             {
-                case MessageFilterSpecificationType.User:
+                case SpecificationEntityType.User:
                     f.Users = f.Users.AddAllowedEntity(id);
                     return f;
                 
-                case MessageFilterSpecificationType.Role:
+                case SpecificationEntityType.Role:
                     f.Roles = f.Roles.AddAllowedEntity(id);
                     return f;
                 
-                case MessageFilterSpecificationType.Channel:
+                case SpecificationEntityType.Channel:
                     f.Channels = f.Channels.AddAllowedEntity(id);
                     return f;
                 
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+                    throw new ArgumentOutOfRangeException(nameof(entityType), entityType, null);
             }
         });
     }
 
-    public async Task<MessageFilter> AddDeniedEntityAsync(int filterId, MessageFilterSpecificationType type, ulong id)
+    public async Task<MessageFilter> AddDeniedEntityAsync(int filterId, SpecificationEntityType entityType, ulong id)
     {
         return await ApplyChangesToFilter(filterId, f =>
         {
-            switch (type)
+            switch (entityType)
             {
-                case MessageFilterSpecificationType.User:
+                case SpecificationEntityType.User:
                     f.Users = f.Users.AddDeniedEntity(id);
                     return f;
 
-                case MessageFilterSpecificationType.Role:
+                case SpecificationEntityType.Role:
                     f.Roles = f.Roles.AddDeniedEntity(id);
                     return f;
 
-                case MessageFilterSpecificationType.Channel:
+                case SpecificationEntityType.Channel:
                     f.Channels = f.Channels.AddDeniedEntity(id);
                     return f;
 
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+                    throw new ArgumentOutOfRangeException(nameof(entityType), entityType, null);
             }
         });
     }

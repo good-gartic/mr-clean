@@ -71,7 +71,7 @@ public class DiscordBotService : BackgroundService
 
         _filter.RegisterMessageHandler(_client);
 
-        _commandService.AddTypeReader<MessageFilterSpecificationType>(new MessageFilterSpecificationTypeReader());
+        _commandService.AddTypeReader<SpecificationEntityType>(new SpecificationEntityTypeReader());
         
         await _commandService.AddModuleAsync<MessageCommandsModule>(_services);
 

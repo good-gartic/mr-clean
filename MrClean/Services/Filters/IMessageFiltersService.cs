@@ -16,9 +16,9 @@ public interface IMessageFiltersService
     
     Task<MessageFilter> DeleteMessageFilterAsync(int filterId);
 
-    Task<MessageFilter> AddAllowedEntityAsync(int filterId, MessageFilterSpecificationType type, ulong id);
+    Task<MessageFilter> AddAllowedEntityAsync(int filterId, SpecificationEntityType entityType, ulong id);
     
-    Task<MessageFilter> AddDeniedEntityAsync(int filterId, MessageFilterSpecificationType type, ulong id);
+    Task<MessageFilter> AddDeniedEntityAsync(int filterId, SpecificationEntityType entityType, ulong id);
 
     Task<MessageFilter> ResetFilterSpecificationAsync(int filterId);
 }

@@ -1,6 +1,6 @@
 namespace MrClean.Models;
 
-public enum MessageFilterSpecificationType
+public enum SpecificationEntityType
 {
     User,
     Role,

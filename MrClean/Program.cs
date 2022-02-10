@@ -5,6 +5,7 @@ using MrClean.Configuration;
 using MrClean.Data;
 using MrClean.Extensions;
 using MrClean.Services;
+using MrClean.Services.Filters;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration((context, builder) => { builder.AddEnvironmentVariables(); })
@@ -24,6 +25,7 @@ var host = Host.CreateDefaultBuilder(args)
         );
 
         services.AddTransient<MessageFilteringService>();
+        services.AddTransient<IMessageFiltersService, MessageFiltersService>();
         services.AddHostedService<DiscordBotService>();
         services.AddDbContextFactory<MrCleanDbContext>(options =>
         {

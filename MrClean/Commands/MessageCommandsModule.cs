@@ -56,4 +56,17 @@ public class MessageCommandsModule : ModuleBase<SocketCommandContext>
 
         await Context.Message.ReplyAsync(embeds: embeds);
     }
+
+    [Command("reset")]
+    public async Task ResetFilterSpecificationsCommand(int id)
+    {
+        var filter = await _service.ResetFilterSpecificationAsync(id);
+
+        await Context.Message.ReplyAsync(embed: filter.Embed);
+    }
+
+    [Command("allow")]
+    public async Task AddAllowedEntity(int id)
+    {
+    }
 }

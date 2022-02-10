@@ -5,8 +5,10 @@ using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MrClean.Commands;
+using MrClean.Commands.TypeReaders;
 using MrClean.Configuration;
 using MrClean.Data;
+using MrClean.Models;
 
 namespace MrClean.Services;
 
@@ -69,6 +71,8 @@ public class DiscordBotService : BackgroundService
 
         _filter.RegisterMessageHandler(_client);
 
+        _commandService.AddTypeReader<MessageFilterSpecificationType>(new MessageFilterSpecificationTypeReader());
+        
         await _commandService.AddModuleAsync<MessageCommandsModule>(_services);
 
 

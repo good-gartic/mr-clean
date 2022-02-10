@@ -1,3 +1,4 @@
+using Discord.Commands;
 using Microsoft.EntityFrameworkCore;
 using MrClean.Commands;
 using MrClean.Commands.Filters;
@@ -5,6 +6,7 @@ using MrClean.Configuration;
 using MrClean.Data;
 using MrClean.Extensions;
 using MrClean.Services;
+using MrClean.Services.Filters;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration((context, builder) => { builder.AddEnvironmentVariables(); })
@@ -24,6 +26,8 @@ var host = Host.CreateDefaultBuilder(args)
         );
 
         services.AddTransient<MessageFilteringService>();
+        services.AddSingleton<IMessageFiltersService, MessageFiltersService>();
+        services.AddSingleton<CommandService>();
         services.AddHostedService<DiscordBotService>();
         services.AddDbContextFactory<MrCleanDbContext>(options =>
         {

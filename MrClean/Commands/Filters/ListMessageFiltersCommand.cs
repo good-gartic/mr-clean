@@ -2,16 +2,17 @@ using Discord;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using MrClean.Data;
+using MrClean.Services.Filters;
 
 namespace MrClean.Commands.Filters;
 
 public class ListMessageFiltersCommand : ISlashCommandProvider
 {
-    private readonly IDbContextFactory<MrCleanDbContext> _factory;
+    private readonly IMessageFiltersService _service;
 
-    public ListMessageFiltersCommand(IDbContextFactory<MrCleanDbContext> factory)
+    public ListMessageFiltersCommand(IMessageFiltersService service)
     {
-        _factory = factory;
+        _service = service;
     }
 
     public ApplicationCommandProperties Properties { get; } = new SlashCommandBuilder
@@ -25,9 +26,7 @@ public class ListMessageFiltersCommand : ISlashCommandProvider
     {
         await command.DeferAsync();
 
-        await using var context = await _factory.CreateDbContextAsync();
-
-        var filters = await context.MessageFilters.ToListAsync();
+        var filters = await _service.ListMessageFiltersAsync();
 
         if (filters.Count > 0)
         {
@@ -37,7 +36,7 @@ public class ListMessageFiltersCommand : ISlashCommandProvider
 
         await command.FollowupAsync(embed: new EmbedBuilder()
             .WithColor(0xFEE75C)
-            .WithTitle("Sorry, there are no enabled message filters")
+            .WithTitle("Sorry, there are no message filters")
             .WithDescription("To create a new message filter, use the `/create-filter` command")
             .Build()
         );

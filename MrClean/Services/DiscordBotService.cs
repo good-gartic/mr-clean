@@ -1,10 +1,14 @@
+using System.Reflection;
 using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MrClean.Commands;
+using MrClean.Commands.TypeReaders;
 using MrClean.Configuration;
 using MrClean.Data;
+using MrClean.Models;
 
 namespace MrClean.Services;
 
@@ -20,6 +24,10 @@ public class DiscordBotService : BackgroundService
 
     private readonly MessageFilteringService _filter;
 
+    private readonly CommandService _commandService;
+
+    private readonly IServiceProvider _services;
+
     private readonly IDbContextFactory<MrCleanDbContext> _contextFactory;
 
     public DiscordBotService(
@@ -27,16 +35,19 @@ public class DiscordBotService : BackgroundService
         IOptions<DiscordOptions> options,
         IDbContextFactory<MrCleanDbContext> contextFactory,
         SlashCommandDispatcher dispatcher,
-        MessageFilteringService filter
-    )
+        MessageFilteringService filter,
+        CommandService commandService,
+        IServiceProvider services)
     {
         _logger = logger;
         _contextFactory = contextFactory;
         _options = options.Value;
         _dispatcher = dispatcher;
         _filter = filter;
+        _commandService = commandService;
+        _services = services;
 
-        var config = new DiscordSocketConfig()
+        var config = new DiscordSocketConfig
         {
             AlwaysDownloadUsers = true,
             GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildMembers,
@@ -56,8 +67,14 @@ public class DiscordBotService : BackgroundService
         _client.Ready += HandleReadyEventAsync;
         _client.Connected += HandleConnectedEventAsync;
         _client.Log += HandleLogMessageAsync;
+        _client.MessageReceived += HandleMessageAsync;
 
         _filter.RegisterMessageHandler(_client);
+
+        _commandService.AddTypeReader<SpecificationEntityType>(new SpecificationEntityTypeReader());
+        
+        await _commandService.AddModuleAsync<MessageCommandsModule>(_services);
+
 
         await _client.LoginAsync(TokenType.Bot, _options.Token);
         await _client.StartAsync();
@@ -100,7 +117,50 @@ public class DiscordBotService : BackgroundService
 
     private Task HandleLogMessageAsync(LogMessage message)
     {
-        _logger.LogInformation(message.Message);
+        _logger.LogInformation("{message}", message.Message);
         return Task.CompletedTask;
+    }
+
+    private async Task HandleMessageAsync(SocketMessage raw)
+    {
+        if (raw is not SocketUserMessage {Channel: SocketTextChannel channel} message) return;
+        if (channel.Guild is null) return;
+        
+
+        var position = 0;
+        if (!message.Author.IsBot && message.HasMentionPrefix(_client.CurrentUser, ref position))
+        {
+            try
+            {
+                var id = message.Author.Id;
+                var member = channel.Guild.GetUser(id) ?? throw new ApplicationException($"Cannot obtain the guild member with ID = {id}");
+
+                if (!member.GuildPermissions.ManageGuild)
+                {
+                    throw new ApplicationException("Sorry, this bot can be only used by the mods.");
+                }
+            
+                var result = await _commandService.ExecuteAsync(
+                    new SocketCommandContext(_client, message),
+                    position,
+                    _services
+                );
+
+                if (!result.IsSuccess)
+                {
+                    await message.ReplyAsync(
+                        "**Sorry, there was an issue with handling this command.**\n" +
+                        $"```{result.ErrorReason}```"
+                    );
+                }
+            }
+            catch (Exception exception)
+            {
+                await message.ReplyAsync(
+                    "**Sorry, there was an issue with handling this command.**\n" +
+                    $"```{exception.Message}```"
+                );
+            }
+        }
     }
 }

@@ -51,33 +51,86 @@ public class MessageFiltersService : IMessageFiltersService
         return filter;
     }
 
-    public Task<MessageFilter> EnableMessageFilterAsync(int filterId)
+    public async Task<MessageFilter> EnableMessageFilterAsync(int filterId)
     {
-        throw new NotImplementedException();
+        return await ApplyChangesToFilter(filterId, f => f.Enabled = true);
     }
 
-    public Task<MessageFilter> DisableMessageFilterAsync(int filterId)
+    public async Task<MessageFilter> DisableMessageFilterAsync(int filterId)
     {
-        throw new NotImplementedException();
+        return await ApplyChangesToFilter(filterId, f => f.Enabled = false);
     }
 
-    public Task<MessageFilter> DeleteMessageFilterAsync(int filterId)
+    public async Task<MessageFilter> DeleteMessageFilterAsync(int filterId)
     {
-        throw new NotImplementedException();
+        await using var context = await _factory.CreateDbContextAsync();
+
+        var filter = await GetMessageFilterAsync(filterId);
+
+        context.MessageFilters.Remove(filter);
+        
+        await context.SaveChangesAsync();
+
+        return filter;
     }
 
-    public Task<MessageFilter> AddAllowedEntityAsync(int filterId, MessageFilterSpecificationType type, ulong id)
+    public async Task<MessageFilter> AddAllowedEntityAsync(int filterId, MessageFilterSpecificationType type, ulong id)
     {
-        throw new NotImplementedException();
+        return await ApplyChangesToFilter(filterId, f =>
+        {
+            var _ = type switch
+            {
+                MessageFilterSpecificationType.User => f.Users.AddAllowedEntity(id),
+                MessageFilterSpecificationType.Role => f.Roles.AddAllowedEntity(id),
+                MessageFilterSpecificationType.Channel => f.Channels.AddAllowedEntity(id),
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+
+            f.UsersSpecification = f.Users.SpecificationString;
+            f.RolesSpecification = f.Roles.SpecificationString;
+            f.ChannelsSpecification = f.Channels.SpecificationString;
+        });
     }
 
-    public Task<MessageFilter> AddDeniedEntityAsync(int filterId, MessageFilterSpecificationType type, ulong id)
+    public async Task<MessageFilter> AddDeniedEntityAsync(int filterId, MessageFilterSpecificationType type, ulong id)
     {
-        throw new NotImplementedException();
+        return await ApplyChangesToFilter(filterId, f =>
+        {
+            var _ = type switch
+            {
+                MessageFilterSpecificationType.User => f.Users.AddDeniedEntity(id),
+                MessageFilterSpecificationType.Role => f.Roles.AddDeniedEntity(id),
+                MessageFilterSpecificationType.Channel => f.Channels.AddDeniedEntity(id),
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+
+            f.UsersSpecification = f.Users.SpecificationString;
+            f.RolesSpecification = f.Roles.SpecificationString;
+            f.ChannelsSpecification = f.Channels.SpecificationString;
+        });
     }
 
-    public Task<MessageFilter> ResetFilterSpecificationAsync(int filterId)
+    public async Task<MessageFilter> ResetFilterSpecificationAsync(int filterId)
     {
-        throw new NotImplementedException();
+        return await ApplyChangesToFilter(filterId, f =>
+        {
+            f.UsersSpecification = null;
+            f.RolesSpecification = null;
+            f.ChannelsSpecification = null;
+        });
+    }
+
+    private async Task<MessageFilter> ApplyChangesToFilter(int id, Action<MessageFilter> transform)
+    {
+        await using var context = await _factory.CreateDbContextAsync();
+
+        var filter = await GetMessageFilterAsync(id);
+        
+        transform(filter);
+        context.MessageFilters.Update(filter);
+
+        await context.SaveChangesAsync();
+
+        return filter;
     }
 }

@@ -15,7 +15,7 @@ public class MessageCommandsModule : ModuleBase<SocketCommandContext>
         _service = service;
     }
 
-    [Command("create-filter")]
+    [Command("create")]
     public async Task CreateMessageFilterCommand(string pattern, int? delay = null, SocketTextChannel? repostChannel = null)
     {
         var filter = await _service.CreateMessageFilterAsync(pattern, delay ?? 0, repostChannel?.Id);
@@ -23,7 +23,7 @@ public class MessageCommandsModule : ModuleBase<SocketCommandContext>
         await Context.Message.ReplyAsync(embed: filter.Embed);
     }
 
-    [Command("delete-filter")]
+    [Command("delete")]
     public async Task DeleteMessageFilterCommand(int id)
     {
         await _service.DeleteMessageFilterAsync(id);
@@ -34,21 +34,21 @@ public class MessageCommandsModule : ModuleBase<SocketCommandContext>
         );
     }
 
-    [Command("enable-filter")]
+    [Command("enable")]
     public async Task EnableFilterCommand(int id)
     {
         var filter = await _service.EnableMessageFilterAsync(id);
         await Context.Message.ReplyAsync(embed: filter.Embed);
     }
 
-    [Command("disable-filter")]
+    [Command("disable")]
     public async Task DisableFilterCommand(int id)
     {
         var filter = await _service.DisableMessageFilterAsync(id);
         await Context.Message.ReplyAsync(embed: filter.Embed);
     }
 
-    [Command("list-filters")]
+    [Command("list")]
     public async Task ListFiltersCommand()
     {
         var filters = await _service.ListMessageFiltersAsync();

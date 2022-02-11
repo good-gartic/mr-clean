@@ -48,7 +48,8 @@ public class MessageFilteringService
             await using var context = await _factory.CreateDbContextAsync();
 
             var filters = await context.MessageFilters.Where(f => f.Enabled).ToListAsync();
-            var matching = filters.FirstOrDefault(f => Matches(f, message));
+            var member = channel.Guild.GetUser(message.Author.Id) ?? throw new Exception("Cannot find member");
+            var matching = filters.FirstOrDefault(f => Matches(f, message, member));
 
             if (matching == null)
             {
@@ -94,7 +95,6 @@ public class MessageFilteringService
                         attachments: attachments,
                         username: message.Author.Username,
                         avatarUrl: message.Author.GetAvatarUrl()
-
                     );
                 }
             }
@@ -108,7 +108,7 @@ public class MessageFilteringService
         }
     }
 
-    private static bool Matches(MessageFilter filter, SocketMessage message)
+    private static bool Matches(MessageFilter filter, SocketMessage message, SocketGuildUser member)
     {
         var pattern = new Regex(filter.Pattern ?? ".*");
 
@@ -116,7 +116,12 @@ public class MessageFilteringService
         {
             return false;
         }
+        
+        // There are no denied roles, return false
+        if (member.Roles.Any(r => filter.Roles.DeniedEntities.Contains(r.Id))) return false;
 
-        return filter.Channels.AllowsEntity(message.Channel.Id) && filter.Users.AllowsEntity(message.Author.Id);
+        return filter.Channels.AllowsEntity(message.Channel.Id) &&
+               filter.Users.AllowsEntity(message.Author.Id) &&
+               member.Roles.Any(r => filter.Roles.AllowsEntity(r.Id));
     }
 }

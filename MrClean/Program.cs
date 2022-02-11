@@ -17,6 +17,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddCommands(collection => collection
             .AddCommand<AllowMessageFilterSpecificationCommand>()
             .AddCommand<CreateMessageFilterCommand>()
+            .AddCommand<EditMessageFilterCommand>()
             .AddCommand<DeleteMessageFilterCommand>()
             .AddCommand<DenyMessageFilterSpecificationCommand>()
             .AddCommand<DisableFilterCommand>()

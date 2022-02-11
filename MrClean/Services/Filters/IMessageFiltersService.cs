@@ -10,6 +10,8 @@ public interface IMessageFiltersService
 
     Task<MessageFilter> CreateMessageFilterAsync(string pattern, int delay = 0, ulong? repostChannelId = null);
 
+    Task<MessageFilter> EditMessageFilterAsync(int id, string pattern, int delay, ulong? channelId);
+    
     Task<MessageFilter> EnableMessageFilterAsync(int filterId);
 
     Task<MessageFilter> DisableMessageFilterAsync(int filterId);

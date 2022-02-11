@@ -30,8 +30,7 @@ public class MessageFiltersService : IMessageFiltersService
         return await context.MessageFilters.ToListAsync();
     }
 
-    public async Task<MessageFilter> CreateMessageFilterAsync(string pattern, int delay = 0,
-        ulong? repostChannelId = null)
+    public async Task<MessageFilter> CreateMessageFilterAsync(string pattern, int delay = 0, ulong? repostChannelId = null)
     {
         await using var context = await _factory.CreateDbContextAsync();
 
@@ -51,6 +50,25 @@ public class MessageFiltersService : IMessageFiltersService
         await context.SaveChangesAsync();
 
         return filter;
+    }
+    
+    public async Task<MessageFilter> EditMessageFilterAsync(int id, string pattern, int delay = 0, ulong? repostChannelId = null)
+    {
+        await using var context = await _factory.CreateDbContextAsync();
+
+        if (delay is < 0 or > 120)
+        {
+            throw new ArgumentOutOfRangeException(nameof(delay));
+        }
+
+        return await ApplyChangesToFilter(id, f =>
+        {
+            f.Delay = delay;
+            f.Pattern = pattern;
+            f.RepostChannelId = repostChannelId;
+            
+            return f;
+        });
     }
 
     public async Task<MessageFilter> EnableMessageFilterAsync(int filterId)

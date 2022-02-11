@@ -1,6 +1,7 @@
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using MrClean.Commands.TypeReaders;
 using MrClean.Models;
 using MrClean.Services.Filters;
 
@@ -19,6 +20,14 @@ public class MessageCommandsModule : ModuleBase<SocketCommandContext>
     public async Task CreateMessageFilterCommand(string pattern, int? delay = null, SocketTextChannel? repostChannel = null)
     {
         var filter = await _service.CreateMessageFilterAsync(pattern, delay ?? 0, repostChannel?.Id);
+
+        await Context.Message.ReplyAsync(embed: filter.Embed);
+    }
+    
+    [Command("edit")]
+    public async Task EditMessageFilterCommand(int id, string pattern, int? delay = null, SocketTextChannel? repostChannel = null)
+    {
+        var filter = await _service.EditMessageFilterAsync(id, pattern, delay ?? 0, repostChannel?.Id);
 
         await Context.Message.ReplyAsync(embed: filter.Embed);
     }
@@ -66,17 +75,17 @@ public class MessageCommandsModule : ModuleBase<SocketCommandContext>
     }
 
     [Command("only")]
-    public async Task AddAllowedEntity(int id, SpecificationEntityType entityType, ulong entityId)
+    public async Task AddAllowedEntity(int id, SpecificationEntityType entityType, ISnowflakeEntity entity)
     {
-        var filter = await _service.AddAllowedEntityAsync(id, entityType, entityId);
+        var filter = await _service.AddAllowedEntityAsync(id, entityType, entity.Id);
 
         await Context.Message.ReplyAsync(embed: filter.Embed);
     }
 
     [Command("exclude")]
-    public async Task AddDeniedEntity(int id, SpecificationEntityType entityType, ulong entityId)
+    public async Task AddDeniedEntity(int id, SpecificationEntityType entityType, ISnowflakeEntity entity)
     {
-        var filter = await _service.AddDeniedEntityAsync(id, entityType, entityId);
+        var filter = await _service.AddDeniedEntityAsync(id, entityType, entity.Id);
 
         await Context.Message.ReplyAsync(embed: filter.Embed);
     }

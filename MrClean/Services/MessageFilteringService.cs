@@ -16,9 +16,12 @@ public class MessageFilteringService
 
     private readonly IDbContextFactory<MrCleanDbContext> _factory;
 
-    public MessageFilteringService(IOptions<DiscordOptions> options, IDbContextFactory<MrCleanDbContext> factory)
+    private readonly ILogger<MessageFilteringService> _logger;
+
+    public MessageFilteringService(IOptions<DiscordOptions> options, IDbContextFactory<MrCleanDbContext> factory, ILogger<MessageFilteringService> logger)
     {
         _factory = factory;
+        _logger = logger;
         _options = options.Value;
     }
 
@@ -29,72 +32,80 @@ public class MessageFilteringService
 
     private async Task HandleMessageEventAsync(SocketMessage message, BaseSocketClient client)
     {
-        // If the message was not sent in the managed guild
-        if (
-            message.Author.IsWebhook ||
-            message.Channel is not SocketGuildChannel channel ||
-            message.Author.Id == client.CurrentUser.Id ||
-            channel.Guild.Id != _options.GuildId
-        )
+        try
         {
-            return;
-        }
-
-        await using var context = await _factory.CreateDbContextAsync();
-
-        var filters = await context.MessageFilters.Where(f => f.Enabled).ToListAsync();
-        var matching = filters.FirstOrDefault(f => Matches(f, message));
-
-        if (matching == null)
-        {
-            return;
-        }
-
-        await Task.Delay(matching.Delay * 1000);
-
-        if (matching.RepostChannelId is not null)
-        {
-            var repostChannel = channel.Guild.GetTextChannel(matching.RepostChannelId.Value);
-            
-            // If there are no webhooks in this channel, create a new one
-            var webhooks = await repostChannel.GetWebhooksAsync();
-            var webhook = webhooks.FirstOrDefault() ?? await repostChannel.CreateWebhookAsync("mr-clean-webhook");
-
-            var webhookClient = new DiscordWebhookClient(webhook);
-            var repostedMessageId = await webhookClient.SendMessageAsync(
-                message.Content,
-                username: message.Author.Username,
-                avatarUrl: message.Author.GetAvatarUrl(),
-                embeds: message.Embeds.ToArray()
-            );
-
-            if (message.Attachments.Count != 0)
+            // If the message was not sent in the managed guild
+            if (
+                message.Author.IsWebhook ||
+                message.Channel is not SocketGuildChannel channel ||
+                message.Author.Id == client.CurrentUser.Id ||
+                channel.Guild.Id != _options.GuildId
+            )
             {
-                // Repost all message attachments (files, images, videos...)
-                var httpClient = new HttpClient();
-                var attachments = await Task.WhenAll(
-                    message.Attachments.Select(async a =>
-                        new FileAttachment( await httpClient.GetStreamAsync(a.Url),
-                            a.Filename,
-                            a.Filename,
-                            a.IsSpoiler()
-                        )
-                    )
-                );
-
-                var repostedMessage = await repostChannel.GetMessageAsync(repostedMessageId);
-
-                await webhookClient.SendFilesAsync(
-                    text: string.Empty,
-                    attachments: attachments,
-                    username: message.Author.Username,
-                    avatarUrl: message.Author.GetAvatarUrl()
-                    
-                );
+                return;
             }
-        }
 
-        await message.DeleteAsync();
+            await using var context = await _factory.CreateDbContextAsync();
+
+            var filters = await context.MessageFilters.Where(f => f.Enabled).ToListAsync();
+            var matching = filters.FirstOrDefault(f => Matches(f, message));
+
+            if (matching == null)
+            {
+                return;
+            }
+
+            await Task.Delay(matching.Delay * 1000);
+
+            if (matching.RepostChannelId is not null)
+            {
+                var repostChannel = channel.Guild.GetTextChannel(matching.RepostChannelId.Value);
+
+                // If there are no webhooks in this channel, create a new one
+                var webhooks = await repostChannel.GetWebhooksAsync();
+                var webhook = webhooks.FirstOrDefault() ?? await repostChannel.CreateWebhookAsync("mr-clean-webhook");
+
+                var webhookClient = new DiscordWebhookClient(webhook);
+                var repostedMessageId = await webhookClient.SendMessageAsync(
+                    message.Content,
+                    username: message.Author.Username,
+                    avatarUrl: message.Author.GetAvatarUrl(),
+                    embeds: message.Embeds.ToArray()
+                );
+
+                if (message.Attachments.Count != 0)
+                {
+                    // Repost all message attachments (files, images, videos...)
+                    var httpClient = new HttpClient();
+                    var attachments = await Task.WhenAll(
+                        message.Attachments.Select(async a =>
+                            new FileAttachment(await httpClient.GetStreamAsync(a.Url),
+                                a.Filename,
+                                a.Filename,
+                                a.IsSpoiler()
+                            )
+                        )
+                    );
+
+                    var repostedMessage = await repostChannel.GetMessageAsync(repostedMessageId);
+
+                    await webhookClient.SendFilesAsync(
+                        text: string.Empty,
+                        attachments: attachments,
+                        username: message.Author.Username,
+                        avatarUrl: message.Author.GetAvatarUrl()
+
+                    );
+                }
+            }
+
+            await message.DeleteAsync();
+        }
+        catch (Exception exception)
+        {
+            _logger.LogCritical("Exception during handling message: {exception}", exception.Message); 
+            throw;
+        }
     }
 
     private static bool Matches(MessageFilter filter, SocketMessage message)

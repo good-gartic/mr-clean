@@ -82,7 +82,7 @@ public class MessageFilteringService
                         )
                     )
                 );
-                
+
                 await repostChannel.SendFilesAsync(attachments, "", messageReference: repostedMessage.Reference);
             }
         }

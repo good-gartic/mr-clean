@@ -1,7 +1,6 @@
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.EntityFrameworkCore.Query;
 using MrClean.Models;
 using MrClean.Services.Filters;
 
@@ -73,7 +72,7 @@ public class MessageCommandsModule : ModuleBase<SocketCommandContext>
 
         await Context.Message.ReplyAsync(embed: filter.Embed);
     }
-    
+
     [Command("exclude")]
     public async Task AddDeniedEntity(int id, SpecificationEntityType entityType, ulong entityId)
     {

@@ -61,14 +61,15 @@ public class DenyMessageFilterSpecificationCommand : ISlashCommandProvider
         {
             var id = (int) command.GetOption<long>("id");
             var filter = await _service.GetMessageFilterAsync(id);
-            
+
             var user = command.GetOption<SocketGuildUser>("user");
             var role = command.GetOption<SocketRole>("role");
             var channel = command.GetOption<SocketGuildChannel>("channel");
 
             if (user != null) filter = await _service.AddDeniedEntityAsync(id, SpecificationEntityType.User, user.Id);
             if (role != null) filter = await _service.AddDeniedEntityAsync(id, SpecificationEntityType.Role, role.Id);
-            if (channel != null) filter = await _service.AddDeniedEntityAsync(id, SpecificationEntityType.Channel, channel.Id);
+            if (channel != null)
+                filter = await _service.AddDeniedEntityAsync(id, SpecificationEntityType.Channel, channel.Id);
 
             await command.FollowupAsync(embed: filter.Embed);
         }

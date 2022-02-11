@@ -12,7 +12,8 @@ public class SpecificationEntityTypeReader : TypeReader
             "user" => TypeReaderResult.FromSuccess(SpecificationEntityType.User),
             "role" => TypeReaderResult.FromSuccess(SpecificationEntityType.Role),
             "channel" => TypeReaderResult.FromSuccess(SpecificationEntityType.Channel),
-            _ => TypeReaderResult.FromError(CommandError.Exception, "The parameter value must be either 'user', 'role' or 'channel'"),
+            _ => TypeReaderResult.FromError(CommandError.Exception,
+                "The parameter value must be either 'user', 'role' or 'channel'"),
         };
 
         return Task.FromResult(output);

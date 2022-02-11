@@ -42,10 +42,10 @@ public class DisableFilterCommand : ISlashCommandProvider
         {
             var id = (int) command.GetOption<long>("id");
             var filter = await _service.DisableMessageFilterAsync(id);
-            
+
             await command.FollowupAsync(embed: filter.Embed);
         }
-        catch(MessageFilterNotFoundException)
+        catch (MessageFilterNotFoundException)
         {
             await command.FollowupAsync(embed: new EmbedBuilder()
                 .WithColor(0xED4245)

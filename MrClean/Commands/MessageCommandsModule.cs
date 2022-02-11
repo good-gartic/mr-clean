@@ -22,6 +22,14 @@ public class MessageCommandsModule : ModuleBase<SocketCommandContext>
 
         await Context.Message.ReplyAsync(embed: filter.Embed);
     }
+    
+    [Command("edit")]
+    public async Task EditMessageFilterCommand(int id, string pattern, int? delay = null, SocketTextChannel? repostChannel = null)
+    {
+        var filter = await _service.EditMessageFilterAsync(id, pattern, delay ?? 0, repostChannel?.Id);
+
+        await Context.Message.ReplyAsync(embed: filter.Embed);
+    }
 
     [Command("delete")]
     public async Task DeleteMessageFilterCommand(int id)

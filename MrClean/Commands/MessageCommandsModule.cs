@@ -1,6 +1,7 @@
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using MrClean.Commands.TypeReaders;
 using MrClean.Models;
 using MrClean.Services.Filters;
 
@@ -74,17 +75,17 @@ public class MessageCommandsModule : ModuleBase<SocketCommandContext>
     }
 
     [Command("only")]
-    public async Task AddAllowedEntity(int id, SpecificationEntityType entityType, ulong entityId)
+    public async Task AddAllowedEntity(int id, SpecificationEntityType entityType, ISnowflakeEntity entity)
     {
-        var filter = await _service.AddAllowedEntityAsync(id, entityType, entityId);
+        var filter = await _service.AddAllowedEntityAsync(id, entityType, entity.Id);
 
         await Context.Message.ReplyAsync(embed: filter.Embed);
     }
 
     [Command("exclude")]
-    public async Task AddDeniedEntity(int id, SpecificationEntityType entityType, ulong entityId)
+    public async Task AddDeniedEntity(int id, SpecificationEntityType entityType, ISnowflakeEntity entity)
     {
-        var filter = await _service.AddDeniedEntityAsync(id, entityType, entityId);
+        var filter = await _service.AddDeniedEntityAsync(id, entityType, entity.Id);
 
         await Context.Message.ReplyAsync(embed: filter.Embed);
     }

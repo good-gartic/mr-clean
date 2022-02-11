@@ -72,6 +72,7 @@ public class DiscordBotService : BackgroundService
         _filter.RegisterMessageHandler(_client);
 
         _commandService.AddTypeReader<SpecificationEntityType>(new SpecificationEntityTypeReader());
+        _commandService.AddTypeReader<ISnowflakeEntity>(new SnowflakeEntityTypeReader());
 
         await _commandService.AddModuleAsync<MessageCommandsModule>(_services);
 

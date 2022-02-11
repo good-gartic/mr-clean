@@ -39,6 +39,7 @@ public class MessageFilter
         get => new(ChannelsSpecification);
         set => ChannelsSpecification = value.SpecificationString;
     }
+
     /// <summary>
     ///     Filter specification restricting application of this filter to a selected users only
     ///     If not present (or empty), this filter applies to all users

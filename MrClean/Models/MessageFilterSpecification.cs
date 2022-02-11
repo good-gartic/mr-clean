@@ -40,7 +40,7 @@ public class MessageFilterSpecification
             }
 
             var entities = new List<string>();
-            
+
             entities.AddRange(AllowedEntities.Select(e => e.ToString()));
             entities.AddRange(DeniedEntities.Select(e => Negation + e));
 

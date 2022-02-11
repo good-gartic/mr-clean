@@ -42,7 +42,7 @@ public class SlashCommandDispatcher
             await guild.DownloadUsersAsync();
             return;
         }
-        
+
         await client.BulkOverwriteGlobalApplicationCommandsAsync(commands);
     }
 

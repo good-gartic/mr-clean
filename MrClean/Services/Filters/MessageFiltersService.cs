@@ -93,15 +93,15 @@ public class MessageFiltersService : IMessageFiltersService
                 case SpecificationEntityType.User:
                     f.Users = f.Users.AddAllowedEntity(id);
                     return f;
-                
+
                 case SpecificationEntityType.Role:
                     f.Roles = f.Roles.AddAllowedEntity(id);
                     return f;
-                
+
                 case SpecificationEntityType.Channel:
                     f.Channels = f.Channels.AddAllowedEntity(id);
                     return f;
-                
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(entityType), entityType, null);
             }

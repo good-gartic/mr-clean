@@ -72,7 +72,7 @@ public class DiscordBotService : BackgroundService
         _filter.RegisterMessageHandler(_client);
 
         _commandService.AddTypeReader<SpecificationEntityType>(new SpecificationEntityTypeReader());
-        
+
         await _commandService.AddModuleAsync<MessageCommandsModule>(_services);
 
 
@@ -125,7 +125,7 @@ public class DiscordBotService : BackgroundService
     {
         if (raw is not SocketUserMessage {Channel: SocketTextChannel channel} message) return;
         if (channel.Guild is null) return;
-        
+
 
         var position = 0;
         if (!message.Author.IsBot && message.HasMentionPrefix(_client.CurrentUser, ref position))
@@ -133,13 +133,14 @@ public class DiscordBotService : BackgroundService
             try
             {
                 var id = message.Author.Id;
-                var member = channel.Guild.GetUser(id) ?? throw new ApplicationException($"Cannot obtain the guild member with ID = {id}");
+                var member = channel.Guild.GetUser(id) ??
+                             throw new ApplicationException($"Cannot obtain the guild member with ID = {id}");
 
                 if (!member.GuildPermissions.ManageGuild)
                 {
                     throw new ApplicationException("Sorry, this bot can be only used by the mods.");
                 }
-            
+
                 var result = await _commandService.ExecuteAsync(
                     new SocketCommandContext(_client, message),
                     position,

@@ -51,7 +51,7 @@ public class CreateMessageFilterCommand : ISlashCommandProvider
     public async Task HandleCommandInvocationAsync(SocketSlashCommand command)
     {
         await command.DeferAsync();
-        
+
         var pattern = command.GetOption<string>("pattern") ?? throw new ArgumentNullException(nameof(command));
         var delay = (int) Math.Clamp(command.GetOption<long>("delay"), 0, 120);
         var channel = command.GetOption<SocketGuildChannel>("repost-channel");

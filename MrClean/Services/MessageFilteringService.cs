@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Discord;
+using Discord.Webhook;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -30,6 +31,7 @@ public class MessageFilteringService
     {
         // If the message was not sent in the managed guild
         if (
+            message.Author.IsWebhook ||
             message.Channel is not SocketGuildChannel channel ||
             message.Author.Id == client.CurrentUser.Id ||
             channel.Guild.Id != _options.GuildId
@@ -53,20 +55,18 @@ public class MessageFilteringService
         if (matching.RepostChannelId is not null)
         {
             var repostChannel = channel.Guild.GetTextChannel(matching.RepostChannelId.Value);
-            var embed = new EmbedBuilder()
-                .WithColor(0x5865F2)
-                .WithAuthor(message.Author)
-                .WithDescription(message.Content)
-                .WithTimestamp(message.EditedTimestamp ?? message.CreatedAt)
-                .WithFooter("Reposted from #" + channel.Name)
-                .Build();
+            
+            // If there are no webhooks in this channel, create a new one
+            var webhooks = await repostChannel.GetWebhooksAsync();
+            var webhook = webhooks.FirstOrDefault() ?? await repostChannel.CreateWebhookAsync("mr-clean-webhook");
 
-            // Repost the message embed and all other attached embeds
-            var embeds = new List<Embed> {embed};
-
-            embeds.AddRange(message.Embeds);
-
-            var repostedMessage = await repostChannel.SendMessageAsync(embeds: embeds.ToArray());
+            var webhookClient = new DiscordWebhookClient(webhook);
+            var repostedMessageId = await webhookClient.SendMessageAsync(
+                message.Content,
+                username: message.Author.Username,
+                avatarUrl: message.Author.GetAvatarUrl(),
+                embeds: message.Embeds.ToArray()
+            );
 
             if (message.Attachments.Count != 0)
             {
@@ -74,16 +74,23 @@ public class MessageFilteringService
                 var httpClient = new HttpClient();
                 var attachments = await Task.WhenAll(
                     message.Attachments.Select(async a =>
-                        new FileAttachment(
-                            await httpClient.GetStreamAsync(a.Url),
+                        new FileAttachment( await httpClient.GetStreamAsync(a.Url),
                             a.Filename,
                             a.Filename,
                             a.IsSpoiler()
                         )
                     )
                 );
-                
-                await repostChannel.SendFilesAsync(attachments, "", messageReference: repostedMessage.Reference);
+
+                var repostedMessage = await repostChannel.GetMessageAsync(repostedMessageId);
+
+                await webhookClient.SendFilesAsync(
+                    text: string.Empty,
+                    attachments: attachments,
+                    username: message.Author.Username,
+                    avatarUrl: message.Author.GetAvatarUrl()
+                    
+                );
             }
         }
 

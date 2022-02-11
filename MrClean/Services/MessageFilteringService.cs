@@ -63,7 +63,8 @@ public class MessageFilteringService
 
                 // If there are no webhooks in this channel, create a new one
                 var webhooks = await repostChannel.GetWebhooksAsync();
-                var webhook = webhooks.FirstOrDefault() ?? await repostChannel.CreateWebhookAsync("mr-clean-webhook");
+                var webhook = webhooks.FirstOrDefault(w => w.Name == "mr-clean-webhook") 
+                              ?? await repostChannel.CreateWebhookAsync("mr-clean-webhook");
 
                 var webhookClient = new DiscordWebhookClient(webhook);
                 var repostedMessageId = await webhookClient.SendMessageAsync(
@@ -87,8 +88,7 @@ public class MessageFilteringService
                         )
                     );
 
-                    var repostedMessage = await repostChannel.GetMessageAsync(repostedMessageId);
-
+                    await repostChannel.GetMessageAsync(repostedMessageId);
                     await webhookClient.SendFilesAsync(
                         text: string.Empty,
                         attachments: attachments,

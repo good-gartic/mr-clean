@@ -116,7 +116,8 @@ public class MessageFilteringService
         {
             // Check content of all embeds for a match against the regex
             var match = message.Embeds
-                .Select(e => e.Description)
+                .SelectMany(e => new []{e.Title, e.Description})
+                .Where(e => e != null)
                 .Any(e => pattern.IsMatch(e));
 
             if (!match) return false;

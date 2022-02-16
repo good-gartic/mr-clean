@@ -114,7 +114,12 @@ public class MessageFilteringService
 
         if (!pattern.IsMatch(message.CleanContent))
         {
-            return false;
+            // Check content of all embeds for a match against the regex
+            var match = message.Embeds
+                .Select(e => e.Description)
+                .Any(e => pattern.IsMatch(e));
+
+            if (!match) return false;
         }
         
         // There are no denied roles, return false
